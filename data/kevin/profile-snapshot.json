@@ -1,0 +1,35 @@
+{
+    "spiderChartData": {
+        "labels": [
+            "Internal Self-Awareness",
+            "External Self-Awareness",
+            "Emotional Regulation",
+            "Metacognition",
+            "Mindfulness",
+            "Behavioral Awareness",
+            "Interpersonal Awareness",
+            "Cultural Awareness",
+            "Physical Environment Awareness",
+            "Purpose and Meaning Awareness"
+        ],
+        "scores": [82, 61, 42, 62, 46, 57, 51, 61, 59, 64]
+    },
+    "synopsis": {
+        "Guidance": "Your self-awareness profile reveals areas of both strength and growth opportunities. You exhibit high emotional and cognitive awareness, showing robust capability in understanding your emotions and thoughts. However, your emotional regulation and external awareness dimensions are areas needing improvement, particularly in social interactions and emotional management. The goal is to cultivate these dimensions to balance your high internal self-awareness and maximize overall self-awareness.",
+        "Relationships": [
+            {"Connection": "Higher emotional awareness appears to positively correlate with higher cognitive awareness.", "From": "Emotional Awareness", "To": "Cognitive Awareness"},
+            {"Connection": "The low emotional regulation score may be impacting your interpersonal dynamics.", "From": "Emotional Regulation", "To": "Interpersonal Awareness"},
+            {"Connection": "Greater mindfulness may enhance your emotional regulation capabilities.", "From": "Mindfulness", "To": "Emotional Regulation"}
+        ],
+        "Strengths": [
+            {"dimension": "Internal Self-Awareness", "description": "Demonstrates strong emotional and cognitive awareness, indicating a good grasp of personal emotions and thought processes."},
+            {"dimension": "Values and Beliefs Awareness", "description": "High understanding of personal core values, leading to clear decision-making aligned with personal principles."},
+            {"dimension": "Empathy", "description": "Exhibits strong empathic abilities, enabling you to connect and respond to others' emotional states effectively."}
+        ],
+        "Weaknesses": [
+            {"dimension": "Emotional Regulation", "description": "Struggles with managing emotions during intense situations, which could lead to potential outbursts or feelings of being overwhelmed."},
+            {"dimension": "External Self-Awareness", "description": "Lower scores in social awareness and feedback integration indicate challenges in understanding social cues and adjusting behavior accordingly."},
+            {"dimension": "Impulse Control", "description": "Limited impulse control may affect decision-making and responses in social contexts, leading to potential misunderstandings or conflicts."}
+        ]
+    }
+}

@@ -1,0 +1,807 @@
+{
+    "Internal Self-Awareness": {
+        "Emotional Awareness": {
+            "questions": [
+                {
+                    "question": "I can easily identify the emotions I am feeling at any given moment.",
+                    "answer": 5
+                },
+                {
+                    "question": "I understand why I feel certain emotions in different situations.",
+                    "answer": 5
+                },
+                {
+                    "question": "I notice subtle shifts in my emotional state throughout the day.",
+                    "answer": 5
+                },
+                {
+                    "question": "I am aware when I experience multiple emotions simultaneously.",
+                    "answer": 5
+                },
+                {
+                    "question": "I reflect on my emotions to gain deeper insight into them.",
+                    "answer": 5
+                }
+            ],
+            "score": 25
+        },
+        "Cognitive Awareness": {
+            "questions": [
+                {
+                    "question": "I am conscious of my thought patterns and how they influence my behavior.",
+                    "answer": 4
+                },
+                {
+                    "question": "I recognize when my beliefs affect my judgments or decisions.",
+                    "answer": 5
+                },
+                {
+                    "question": "I am aware of recurring thoughts that may not serve me well.",
+                    "answer": 4
+                },
+                {
+                    "question": "I take time to examine why I think the way I do about certain topics.",
+                    "answer": 4
+                },
+                {
+                    "question": "I can identify when my thinking is biased or irrational.",
+                    "answer": 4
+                }
+            ],
+            "score": 21
+        },
+        "Physical Awareness (Interoception)": {
+            "questions": [
+                {
+                    "question": "I am attentive to physical sensations like hunger, thirst, or fatigue.",
+                    "answer": 4
+                },
+                {
+                    "question": "I notice when my body responds to stress (e.g., increased heart rate, muscle tension).",
+                    "answer": 3
+                },
+                {
+                    "question": "I can sense subtle changes in my bodily states before they become intense.",
+                    "answer": 4
+                },
+                {
+                    "question": "I pay attention to how my emotions manifest physically in my body.",
+                    "answer": 3
+                },
+                {
+                    "question": "I am aware of my breathing patterns in different emotional states.",
+                    "answer": 5
+                }
+            ],
+            "score": 19
+        },
+        "Values and Beliefs Awareness": {
+            "questions": [
+                {
+                    "question": "I have a clear understanding of my core values and principles.",
+                    "answer": 4
+                },
+                {
+                    "question": "I know what I stand for and what I won't compromise on.",
+                    "answer": 2
+                },
+                {
+                    "question": "I reflect on my beliefs to ensure they align with who I want to be.",
+                    "answer": 2
+                },
+                {
+                    "question": "I understand how my values influence my choices and actions.",
+                    "answer": 4
+                },
+                {
+                    "question": "I am aware of any conflicts between my beliefs and my behaviors.",
+                    "answer": 5
+                }
+            ],
+            "score": 17
+        },
+        "score": 82
+    },
+    "External Self-Awareness": {
+        "Social Awareness": {
+            "questions": [
+                {
+                    "question": "I am attentive to social cues in various situations.",
+                    "answer": 4
+                },
+                {
+                    "question": "I easily recognize unspoken social norms in different settings.",
+                    "answer": 2
+                },
+                {
+                    "question": "I adjust my behavior based on the social context I am in.",
+                    "answer": 4
+                },
+                {
+                    "question": "I notice when someone feels uncomfortable in a social situation.",
+                    "answer": 5
+                },
+                {
+                    "question": "I am aware of how my actions affect the mood of a group.",
+                    "answer": 3
+                }
+            ],
+            "score": 18
+        },
+        "Empathy": {
+            "questions": [
+                {
+                    "question": "I can easily put myself in someone else's shoes to understand their perspective.",
+                    "answer": 4
+                },
+                {
+                    "question": "I am sensitive to the emotional needs of others.",
+                    "answer": 5
+                },
+                {
+                    "question": "I can tell how someone is feeling even if they don't express it directly.",
+                    "answer": 3
+                },
+                {
+                    "question": "I feel concerned when others are experiencing difficulties.",
+                    "answer": 5
+                },
+                {
+                    "question": "I make an effort to understand others' viewpoints, even when they differ from mine.",
+                    "answer": 5
+                }
+            ],
+            "score": 22
+        },
+        "Feedback Integration": {
+            "questions": [
+                {
+                    "question": "I actively seek feedback from others about my behavior.",
+                    "answer": 5
+                },
+                {
+                    "question": "I accept constructive criticism without becoming defensive.",
+                    "answer": 4
+                },
+                {
+                    "question": "I reflect on feedback to make positive changes in myself.",
+                    "answer": 3
+                },
+                {
+                    "question": "I am open to suggestions on how to improve my interactions with others.",
+                    "answer": 5
+                },
+                {
+                    "question": "I appreciate others sharing their honest opinions about me.",
+                    "answer": 4
+                }
+            ],
+            "score": 21
+        },
+        "score": 61
+    },
+    "Emotional Regulation": {
+        "Emotional Regulation Strategies": {
+            "questions": [
+                {
+                    "question": "I use specific techniques to manage my emotions when they become intense.",
+                    "answer": 2
+                },
+                {
+                    "question": "I can change how I feel by thinking differently about the situation.",
+                    "answer": 4
+                },
+                {
+                    "question": "I am able to calm myself when I feel upset or agitated.",
+                    "answer": 3
+                },
+                {
+                    "question": "I consciously choose how to express my emotions in various situations.",
+                    "answer": 4
+                },
+                {
+                    "question": "I practice methods like deep breathing or mindfulness to regulate my emotions.",
+                    "answer": 4
+                }
+            ],
+            "score": 17
+        },
+        "Emotional Resilience": {
+            "questions": [
+                {
+                    "question": "I recover quickly after experiencing stressful events.",
+                    "answer": 3
+                },
+                {
+                    "question": "I maintain a positive outlook even when facing difficulties.",
+                    "answer": 3
+                },
+                {
+                    "question": "I adapt well to changes and unexpected challenges.",
+                    "answer": 2
+                },
+                {
+                    "question": "I bounce back easily after setbacks or disappointments.",
+                    "answer": 1
+                },
+                {
+                    "question": "I view obstacles as opportunities for growth.",
+                    "answer": 2
+                }
+            ],
+            "score": 11
+        },
+        "Impulse Control": {
+            "questions": [
+                {
+                    "question": "I think before I act, even when I'm feeling strong emotions.",
+                    "answer": 4
+                },
+                {
+                    "question": "I resist the urge to react impulsively in challenging situations.",
+                    "answer": 4
+                },
+                {
+                    "question": "I can delay gratification to achieve longer-term goals.",
+                    "answer": 3
+                },
+                {
+                    "question": "I manage my immediate reactions when provoked.",
+                    "answer": 4
+                },
+                {
+                    "question": "I remain calm under pressure without overreacting.",
+                    "answer": 4
+                }
+            ],
+            "score": 19
+        },
+        "score": 47
+    },
+    "Metacognition (Cognitive Reflection)": {
+        "Self-Reflection": {
+            "questions": [
+                {
+                    "question": "I regularly reflect on my thoughts to understand why I think the way I do.",
+                    "answer": 5
+                },
+                {
+                    "question": "I analyze my decisions to learn from both successes and mistakes.",
+                    "answer": 3
+                },
+                {
+                    "question": "I take time to consider how my behaviors affect my personal growth.",
+                    "answer": 3
+                },
+                {
+                    "question": "I am aware of the mental processes that lead me to certain conclusions.",
+                    "answer": 4
+                },
+                {
+                    "question": "I actively engage in self-questioning to deepen my understanding of myself.",
+                    "answer": 4
+                }
+            ],
+            "score": 19
+        },
+        "Bias Recognition": {
+            "questions": [
+                {
+                    "question": "I recognize when my personal biases influence my perceptions.",
+                    "answer": 5
+                },
+                {
+                    "question": "I am aware of assumptions I make that may not be accurate.",
+                    "answer": 5
+                },
+                {
+                    "question": "I question my initial judgments to check for possible biases.",
+                    "answer": 4
+                },
+                {
+                    "question": "I can identify when I am thinking in stereotypes or generalizations.",
+                    "answer": 5
+                },
+                {
+                    "question": "I acknowledge that my viewpoint may be limited by my experiences.",
+                    "answer": 5
+                }
+            ],
+            "score": 24
+        },
+        "Strategic Thinking": {
+            "questions": [
+                {
+                    "question": "I plan my approach before starting tasks to achieve better outcomes.",
+                    "answer": 2
+                },
+                {
+                    "question": "I adjust my thinking strategies when I face new challenges.",
+                    "answer": 2
+                },
+                {
+                    "question": "I set specific goals and outline steps to reach them.",
+                    "answer": 1
+                },
+                {
+                    "question": "I monitor my progress and modify my plans as needed.",
+                    "answer": 2
+                },
+                {
+                    "question": "I think ahead about potential obstacles and how to overcome them.",
+                    "answer": 4
+                }
+            ],
+            "score": 11
+        },
+        "score": 54
+    },
+    "Mindfulness": {
+        "Present-Moment Awareness": {
+            "questions": [
+                {
+                    "question": "I focus my attention on what is happening in the present moment.",
+                    "answer": 4
+                },
+                {
+                    "question": "I notice the sensations in my body and remain focused on them.",
+                    "answer": 4
+                },
+                {
+                    "question": "I am aware of my thoughts as they come and go.",
+                    "answer": 3
+                },
+                {
+                    "question": "I pay attention to sounds, sights, and smells around me, fully engaged in the present moment.",
+                    "answer": 3
+                },
+                {
+                    "question": "I find it easy to stay engaged with what I am doing right now.",
+                    "answer": 2
+                }
+            ],
+            "score": 16
+        },
+        "Non-Judgmental Observation": {
+            "questions": [
+                {
+                    "question": "I observe my experiences neutrally, accepting them as they are.",
+                    "answer": 2
+                },
+                {
+                    "question": "I accept my thoughts and feelings kindly and compassionately.",
+                    "answer": 1
+                },
+                {
+                    "question": "I notice when I judge my own emotions and let go of those judgments.",
+                    "answer": 1
+                },
+                {
+                    "question": "I allow myself to experience emotions fully, embracing them as they come.",
+                    "answer": 3
+                },
+                {
+                    "question": "I approach my experiences with curiosity rather than judgment.",
+                    "answer": 3
+                }
+            ],
+            "score": 10
+        },
+        "Acceptance": {
+            "questions": [
+                {
+                    "question": "I embrace my emotions, even when they are uncomfortable.",
+                    "answer": 3
+                },
+                {
+                    "question": "I accept situations that are out of my control with a sense of peace.",
+                    "answer": 4
+                },
+                {
+                    "question": "I am comfortable with uncertainty and change in my life.",
+                    "answer": 1
+                },
+                {
+                    "question": "I let go of the need to control every aspect of my experiences.",
+                    "answer": 4
+                },
+                {
+                    "question": "I find peace in acknowledging things as they are.",
+                    "answer": 2
+                }
+            ],
+            "score": 14
+        },
+        "score": 40
+    },
+    "Behavioral Awareness": {
+        "Action-Outcome Linkage": {
+            "questions": [
+                {
+                    "question": "I recognize how my actions directly influence the results I experience.",
+                    "answer": 5
+                },
+                {
+                    "question": "I consider the potential consequences before I act.",
+                    "answer": 3
+                },
+                {
+                    "question": "I reflect on how my behaviors lead to specific outcomes in my life.",
+                    "answer": 4
+                },
+                {
+                    "question": "I understand the impact of my decisions on future events.",
+                    "answer": 4
+                },
+                {
+                    "question": "I am aware of how my choices affect both myself and others.",
+                    "answer": 4
+                }
+            ],
+            "score": 20
+        },
+        "Consistency with Values": {
+            "questions": [
+                {
+                    "question": "My actions are aligned with my personal values and ethics.",
+                    "answer": 3
+                },
+                {
+                    "question": "I make choices that reflect what I believe is right.",
+                    "answer": 4
+                },
+                {
+                    "question": "I engage in behaviors that align with my moral principles.",
+                    "answer": 4
+                },
+                {
+                    "question": "I act in ways that are true to myself.",
+                    "answer": 4
+                },
+                {
+                    "question": "I regularly assess whether my behaviors match my core beliefs.",
+                    "answer": 2
+                }
+            ],
+            "score": 17
+        },
+        "Habit Awareness": {
+            "questions": [
+                {
+                    "question": "I am aware of my daily habits and routines.",
+                    "answer": 4
+                },
+                {
+                    "question": "I recognize automatic behaviors that I perform without much thought.",
+                    "answer": 4
+                },
+                {
+                    "question": "I reflect on whether my habits are beneficial or detrimental to me.",
+                    "answer": 5
+                },
+                {
+                    "question": "I can identify triggers that lead me to engage in certain habits.",
+                    "answer": 5
+                },
+                {
+                    "question": "I am conscious of patterns in my behavior that occur regularly.",
+                    "answer": 5
+                }
+            ],
+            "score": 23
+        },
+        "score": 60
+    },
+    "Interpersonal Awareness": {
+        "Communication Skills": {
+            "questions": [
+                {
+                    "question": "I am aware of how my tone of voice affects my communication with others.",
+                    "answer": 5
+                },
+                {
+                    "question": "I pay attention to my body language when interacting with people.",
+                    "answer": 3
+                },
+                {
+                    "question": "I listen actively to others, allowing them to speak without interruption.",
+                    "answer": 5
+                },
+                {
+                    "question": "I express my thoughts and feelings clearly and effectively.",
+                    "answer": 1
+                },
+                {
+                    "question": "I notice when others seem confused or misunderstand me during conversations.",
+                    "answer": 4
+                }
+            ],
+            "score": 18
+        },
+        "Relationship Dynamics": {
+            "questions": [
+                {
+                    "question": "I recognize patterns in how I relate to different people in my life.",
+                    "answer": 5
+                },
+                {
+                    "question": "I understand the roles I tend to take on in relationships (e.g., leader, supporter).",
+                    "answer": 5
+                },
+                {
+                    "question": "I reflect on how my actions contribute to the quality of my relationships.",
+                    "answer": 5
+                },
+                {
+                    "question": "I am aware of recurring issues that arise in my relationships.",
+                    "answer": 5
+                },
+                {
+                    "question": "I consider how my expectations affect my interactions with others.",
+                    "answer": 4
+                }
+            ],
+            "score": 24
+        },
+        "Boundary Setting": {
+            "questions": [
+                {
+                    "question": "I recognize when my personal boundaries are being crossed.",
+                    "answer": 5
+                },
+                {
+                    "question": "I communicate my needs and limits clearly to others.",
+                    "answer": 2
+                },
+                {
+                    "question": "I respect others' boundaries even when they differ from my own.",
+                    "answer": 5
+                },
+                {
+                    "question": "I feel comfortable saying no when necessary.",
+                    "answer": 2
+                },
+                {
+                    "question": "I establish and maintain healthy boundaries in my relationships.",
+                    "answer": 3
+                }
+            ],
+            "score": 17
+        },
+        "score": 59
+    },
+    "Cultural Awareness": {
+        "Cultural Sensitivity": {
+            "questions": [
+                {
+                    "question": "I am aware of cultural differences and similarities among people.",
+                    "answer": 5
+                },
+                {
+                    "question": "I make an effort to learn about other cultures and their practices.",
+                    "answer": 4
+                },
+                {
+                    "question": "I respect cultural traditions that are different from my own.",
+                    "answer": 3
+                },
+                {
+                    "question": "I adapt my behavior in cross-cultural situations to be more effective.",
+                    "answer": 5
+                },
+                {
+                    "question": "I am sensitive to cultural norms when interacting with people from different backgrounds.",
+                    "answer": 5
+                }
+            ],
+            "score": 22
+        },
+        "Ethnocentrism Recognition": {
+            "questions": [
+                {
+                    "question": "I recognize when my own cultural perspectives influence my perceptions.",
+                    "answer": 5
+                },
+                {
+                    "question": "I acknowledge that my cultural experiences may not be universal.",
+                    "answer": 5
+                },
+                {
+                    "question": "I am open to viewpoints that challenge my cultural assumptions.",
+                    "answer": 5
+                },
+                {
+                    "question": "I reflect on how my cultural background influences my perceptions.",
+                    "answer": 5
+                },
+                {
+                    "question": "I strive to understand others beyond my own cultural norms.",
+                    "answer": 5
+                }
+            ],
+            "score": 25
+        },
+        "Inclusivity Practices": {
+            "questions": [
+                {
+                    "question": "I engage in activities that promote inclusion and diversity.",
+                    "answer": 5
+                },
+                {
+                    "question": "I make an effort to include people from different cultural backgrounds in group settings.",
+                    "answer": 5
+                },
+                {
+                    "question": "I challenge stereotypes and prejudices when I encounter them.",
+                    "answer": 5
+                },
+                {
+                    "question": "I create environments where everyone feels valued and respected.",
+                    "answer": 5
+                },
+                {
+                    "question": "I support initiatives that foster cultural understanding and cooperation.",
+                    "answer": 5
+                }
+            ],
+            "score": 25
+        },
+        "score": 72
+    },
+    "Physical Environment Awareness": {
+        "Sensory Perception": {
+            "questions": [
+                {
+                    "question": "I am aware of the noise levels in my environment and how they affect me.",
+                    "answer": 4
+                },
+                {
+                    "question": "I notice the lighting conditions around me and how they influence my mood.",
+                    "answer": 4
+                },
+                {
+                    "question": "I pay attention to scents and smells in my surroundings.",
+                    "answer": 4
+                },
+                {
+                    "question": "I am sensitive to the textures and materials of objects in my environment.",
+                    "answer": 4
+                },
+                {
+                    "question": "I recognize how temperature changes impact my comfort and focus.",
+                    "answer": 4
+                }
+            ],
+            "score": 20
+        },
+        "Spatial Awareness": {
+            "questions": [
+                {
+                    "question": "I am conscious of my position and movement within physical spaces.",
+                    "answer": 4
+                },
+                {
+                    "question": "I navigate environments easily, noticing obstacles and pathways.",
+                    "answer": 1
+                },
+                {
+                    "question": "I adjust my movements based on the spatial layout around me.",
+                    "answer": 4
+                },
+                {
+                    "question": "I am aware of how crowded or open spaces affect my feelings.",
+                    "answer": 4
+                },
+                {
+                    "question": "I recognize when I need more personal space in different settings.",
+                    "answer": 4
+                }
+            ],
+            "score": 17
+        },
+        "Environmental Influence": {
+            "questions": [
+                {
+                    "question": "I notice how different environments affect my mood and behavior.",
+                    "answer": 5
+                },
+                {
+                    "question": "I understand that organized spaces enhance my ability to concentrate.",
+                    "answer": 2
+                },
+                {
+                    "question": "I adjust my surroundings to improve my mental state (e.g., organizing, decorating).",
+                    "answer": 3
+                },
+                {
+                    "question": "I choose environments that support my productivity and well-being.",
+                    "answer": 3
+                },
+                {
+                    "question": "I am aware of how environmental factors like color schemes influence me.",
+                    "answer": 5
+                }
+            ],
+            "score": 18
+        },
+        "score": 55
+    },
+    "Purpose and Meaning Awareness": {
+        "Goal Alignment": {
+            "questions": [
+                {
+                    "question": "I ensure that my daily actions contribute to my long-term goals.",
+                    "answer": 2
+                },
+                {
+                    "question": "I set short-term objectives that align with my overall life purpose.",
+                    "answer": 4
+                },
+                {
+                    "question": "I reflect on how my current activities impact my future aspirations.",
+                    "answer": 4
+                },
+                {
+                    "question": "I prioritize tasks that move me closer to achieving my long-term objectives.",
+                    "answer": 2
+                },
+                {
+                    "question": "I adjust my plans when necessary to stay aligned with my life goals.",
+                    "answer": 3
+                }
+            ],
+            "score": 15
+        },
+        "Existential Reflection": {
+            "questions": [
+                {
+                    "question": "I spend time contemplating the purpose and meaning of my life.",
+                    "answer": 5
+                },
+                {
+                    "question": "I consider what gives my life significance and fulfillment.",
+                    "answer": 5
+                },
+                {
+                    "question": "I reflect on the impact I want to have on the world around me.",
+                    "answer": 5
+                },
+                {
+                    "question": "I think about my personal values in relation to the bigger picture of life.",
+                    "answer": 5
+                },
+                {
+                    "question": "I engage with questions about my existence and personal significance.",
+                    "answer": 5
+                }
+            ],
+            "score": 25
+        },
+        "Motivational Drivers": {
+            "questions": [
+                {
+                    "question": "I understand what internally motivates me to take action.",
+                    "answer": 4
+                },
+                {
+                    "question": "I am aware of the passions that inspire me in my life.",
+                    "answer": 5
+                },
+                {
+                    "question": "I recognize the factors that drive my enthusiasm and commitment.",
+                    "answer": 5
+                },
+                {
+                    "question": "I know what gives me a sense of fulfillment and satisfaction.",
+                    "answer": 4
+                },
+                {
+                    "question": "I pursue activities that align with my intrinsic motivations.",
+                    "answer": 4
+                }
+            ],
+            "score": 22
+        },
+        "score": 62
+    }
+}

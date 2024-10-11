@@ -1,0 +1,90 @@
+{
+    "spiderChartData": {
+        "labels": [
+            "Internal Self-Awareness",
+            "External Self-Awareness",
+            "Emotional Regulation",
+            "Metacognition (Cognitive Reflection)",
+            "Mindfulness",
+            "Behavioral Awareness",
+            "Interpersonal Awareness",
+            "Cultural Awareness",
+            "Physical Environment Awareness",
+            "Purpose and Meaning Awareness"
+        ],
+        "scores": [
+            79,
+            54,
+            42,
+            54,
+            48,
+            43,
+            48,
+            37,
+            48,
+            37
+        ]
+    },
+    "synopsis": {
+        "Guidance": "The user's awareness profile indicates strong internal self-awareness but reveals notable weaknesses in areas related to external awareness and emotional regulation. By developing skills in social awareness, empathy, emotional resilience, and impulse control, the user can enhance their ability to connect with others and manage their emotions more efficiently. This holistic growth will contribute to moving towards the universal self-awareness score.",
+        "Relationships": [
+            {
+                "Connection": "Internal Self-Awareness is significantly strong and likely informs physical and emotional awareness.",
+                "From": "Internal Self-Awareness",
+                "To": "External Awareness"
+            },
+            {
+                "Connection": "The user's emotional awareness can enhance their empathy.",
+                "From": "Emotional Awareness",
+                "To": "Empathy"
+            },
+            {
+                "Connection": "Improving Feedback Integration may bolster relationship dynamics.",
+                "From": "Feedback Integration",
+                "To": "Relationship Dynamics"
+            },
+            {
+                "Connection": "Mindfulness can improve emotional regulation, supporting resilience.",
+                "From": "Mindfulness",
+                "To": "Emotional Regulation"
+            },
+            {
+                "Connection": "Overall, stronger self and social awareness can effectively improve behavioral patterns.",
+                "From": "All Dimensions",
+                "To": "Behavioral Awareness"
+            }
+        ],
+        "Strengths": [
+            {
+                "dimension": "Internal Self-Awareness",
+                "description": "The user demonstrates a high level of emotional, cognitive, and physical awareness, suggesting a deep understanding of their internal processes."
+            },
+            {
+                "dimension": "Values and Beliefs Awareness",
+                "description": "Strong awareness of personal values indicates a well-defined sense of ethical and moral grounding."
+            },
+            {
+                "dimension": "Cultural Awareness",
+                "description": "The user displays sensitivity to cultural differences and understands how cultural influences shape perceptions."
+            }
+        ],
+        "Weaknesses": [
+            {
+                "dimension": "Emotional Regulation",
+                "description": "The user shows room for improvement in strategies for managing emotions, indicating difficulty in calming themselves during emotional distress."
+            },
+            {
+                "dimension": "Impulse Control",
+                "description": "Limited impulse control suggests challenges in delaying reactions and managing immediate responses effectively."
+            },
+            {
+                "dimension": "Purpose and Meaning Awareness",
+                "description": "The user lacks clarity in aligning daily actions with long-term goals, which might lead to a sense of aimlessness."
+            },
+            {
+                "dimension": "Feedback Integration",
+                "description": "The user struggles to accept feedback constructively and reflect upon it, hindering personal development in relationships."
+            }
+        ]
+    }
+}

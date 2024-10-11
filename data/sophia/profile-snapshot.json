@@ -1,0 +1,81 @@
+{
+    "spiderChartData": {
+        "labels": [
+            "Internal Self-Awareness",
+            "External Self-Awareness",
+            "Emotional Regulation",
+            "Metacognition",
+            "Mindfulness",
+            "Behavioral Awareness",
+            "Interpersonal Awareness",
+            "Cultural Awareness",
+            "Physical Environment Awareness",
+            "Purpose and Meaning Awareness"
+        ],
+        "scores": [
+            82,
+            61,
+            47,
+            54,
+            40,
+            60,
+            59,
+            72,
+            55,
+            62
+        ]
+    },
+    "synopsis": {
+        "Guidance": "Your awareness profile indicates strong capabilities in Internal Self-Awareness, particularly in Emotional Awareness, which reflects your ability to identify, understand, and reflect on your emotions. However, areas such as Emotional Regulation and Strategic Thinking could benefit from targeted improvement. It is essential to cultivate skills in these weaker areas to enhance overall self-awareness more holistically and to manage your emotional state effectively.",
+        "Relationships": [
+            {
+                "Connection": "Strong emotional awareness contributes to better social awareness and empathy.",
+                "From": "Internal Self-Awareness",
+                "To": "External Self-Awareness"
+            },
+            {
+                "Connection": "Mindfulness could enhance emotional regulation, leading to better emotional resilience.",
+                "From": "Mindfulness",
+                "To": "Emotional Regulation"
+            },
+            {
+                "Connection": "Improving Emotional Regulation could provide a foundation for better impulse control.",
+                "From": "Emotional Regulation",
+                "To": "Impulse Control"
+            },
+            {
+                "Connection": "Understanding behaviors and their impact can enhance interpersonal dynamics.",
+                "From": "Behavioral Awareness",
+                "To": "Interpersonal Awareness"
+            }
+        ],
+        "Strengths": [
+            {
+                "dimension": "Internal Self-Awareness",
+                "description": "Excellent Emotional Awareness which allows you to understand and manage your emotions effectively."
+            },
+            {
+                "dimension": "Cultural Awareness",
+                "description": "Strong recognition of cultural differences and a commitment to fostering inclusivity."
+            },
+            {
+                "dimension": "Feedback Integration",
+                "description": "Your ability to accept and reflect on feedback signifies a strong willingness for self-improvement."
+            }
+        ],
+        "Weaknesses": [
+            {
+                "dimension": "Emotional Regulation",
+                "description": "Needs improvement in managing intense emotions effectively and utilizing coping strategies."
+            },
+            {
+                "dimension": "Metacognition",
+                "description": "Weak in Strategic Thinking and planning, indicating difficulties in executing and adapting strategies towards goals."
+            },
+            {
+                "dimension": "Mindfulness",
+                "description": "Struggling with non-judgmental observation and acceptance, which may hinder present-moment engagement and emotional resilience."
+            }
+        ]
+    }
+}
