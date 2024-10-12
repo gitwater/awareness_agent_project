@@ -4,7 +4,8 @@ import json
 
 def main():
     print("Welcome to the Awareness Improvement Agent!")
-    profile_data_path = input("Please enter the path to your user data or enter your username: ")
+    profile_data_path = 'slippityj'
+    #profile_data_path = input("Please enter the path to your user data or enter your username: ")
     db = Database()
     # If the value is a path then load it with the profile parser
     # Otherwise, assume it's a username and load the profile from the database

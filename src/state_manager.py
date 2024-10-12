@@ -1,5 +1,7 @@
 # src/state_manager.py
 from transitions import Machine
+from states.state_onboarding import OnboardingState
+from states.state_dimension_analysis import DimensionAnalysisState
 import json
 
 class StateManager:
@@ -66,65 +68,6 @@ class StateManager:
     def sub_state(self):
         return self.state_class_obj[self.state].state
 
-
-class BaseState:
-    def __init__(self, state_manager, agent, states):
-        self.agent = agent
-        self.state_manager = state_manager
-        self.states = states
-        self.state = self.states[0]  # Start with the first state by default
-        self.handlers = {}
-        self.machine = Machine(model=self, states=self.states, initial=self.state)
-
-    def process_state(self):
-        handler = self.handlers.get(self.state, self.handle_unknown_state)
-        handler()
-
-    def handle_unknown_state(self):
-        print(f"Unknown state: {self.state}")
-        # You can add logic to handle unknown states here
-
-class OnboardingState(BaseState):
-
-    def __init__(self, state_manager, agent):
-        states = ['Goals']
-        super().__init__(state_manager, agent, states)
-
-        self.handlers = {
-            'Goals': self.handle_Goals,
-        }
-
-    def handle_Goals(self):
-        print("Processing Onboarding.Goals")
-        print("Thank you for providing your information. Let's proceed to analyze your profile.")
-        self.state_manager.to_DimensionAnalysis()
-        breakpoint()
-
-
-class DimensionAnalysisState(BaseState):
-
-    def __init__(self, state_manager, agent):
-        states = ['Review', 'Roadmap']
-        super().__init__(state_manager, agent, states)
-
-        self.handlers = {
-            'Review': self.handle_Review,
-            'Roadmap': self.handle_Roadmap,
-        }
-
-        self.machine.add_transition(trigger='to_Roadmap', source='Review', dest='Roadmap')
-
-    def handle_Review(self):
-        print("Processing DimensionAnalysisState.Review")
-        #self.to_substate_a2()
-        self.to_Roadmap()
-        breakpoint()
-
-    def handle_Roadmap(self):
-        print("Processing DimensionAnalysisState.Roadmap")
-        #self.to_substate_a2()
-        self.state_manager.to_Onboarding()
-        breakpoint()
 
 # class StateManager:
 #     def __init__(self, agent):
