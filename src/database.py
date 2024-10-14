@@ -1,5 +1,5 @@
 # src/database.py
-
+import json
 import sqlite3
 from datetime import datetime
 
@@ -41,6 +41,17 @@ class Database:
                 timestamp TIMESTAMP,
                 message TEXT,
                 sender TEXT,
+                FOREIGN KEY(user_id) REFERENCES users(id)
+            )
+        ''')
+        self.conn.commit()
+
+        # Create Dimension Analysis table
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS dimension_analysis (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER,
+                analysis TEXT,
                 FOREIGN KEY(user_id) REFERENCES users(id)
             )
         ''')
@@ -135,6 +146,23 @@ class Database:
         cursor.execute('SELECT state FROM agent_state WHERE user_id = ?', (user_id,))
         result = cursor.fetchone()
         return result[0] if result else None
+
+    def get_dimension_analysis(self, user_id):
+        cursor = self.conn.cursor()
+        cursor.execute('SELECT analysis FROM dimension_analysis WHERE user_id = ?', (user_id,))
+        result = cursor.fetchone()
+        return result[0] if result else None
+
+    def save_dimension_analysis(self, user_id, analysis):
+        # convert analysis to a json string if it is a dict
+        if isinstance(analysis, dict):
+            analysis = json.dumps(analysis)
+        cursor = self.conn.cursor()
+        cursor.execute('''
+            INSERT INTO dimension_analysis (user_id, analysis)
+            VALUES (?, ?)
+        ''', (user_id, analysis))
+        self.conn.commit()
 
     def save_conversation(self, user_id, message, sender='user'):
         cursor = self.conn.cursor()

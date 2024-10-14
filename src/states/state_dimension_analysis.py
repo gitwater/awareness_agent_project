@@ -71,91 +71,31 @@ def generate_spider_chart(data, output_file):
 
     return plt
 
-def display_snapshot_item(item_title, items):
-    width = 80
-    initial_indent = '    '
-    subsequent_indent = '    '
-    print(f"| {item_title}:\n")
-    for item in items:
-        # Print this print(f"{strength['dimension']}: {strength['description']}") with wrapping
-        print(f"  {item['dimension']}")
-        print(textwrap.fill(f"{item['description']}", width, initial_indent=initial_indent, subsequent_indent=subsequent_indent))
-        print()
-
-# Display the result of the Awareness Profile Snapshot
-def display_snapshot(snapshot):
-    # Convert finding result json sgring into python dict
-
-    # Display the snapshot to the user in a readable format by printing the Synopis, Strengths, and Weaknesses
-    # of the user's awareness profile.
-    print("-------------------------------------------------------------------------------")
-    print("Awareness Profile Analysis")
-    print("-------------------------------------------------------------------------------")
-    # Print the Synopsis
-    #print("Synopsis:")
-    #print(snapshot['synopsis']['Guidance'])
-    #print("-------------------------------------------------------------------------------")
-    # Print the Strengths
-    # loop through synopsys items and display items
-    for (item_title, item) in snapshot['synopsis'].items():
-        display_snapshot_item(item_title, item)
-        print("-------------------------------------------------------------------------------")
-
-    # #display_snapshot_item("Strengths", snapshot['synopsis']['Strengths'])
-    # print("- Strengths -\n")
-    # for strength in snapshot['synopsis']['Strengths']:
-    #     # Print this print(f"{strength['dimension']}: {strength['description']}") with wrapping
-    #     print(f"{strength['dimension']}")
-    #     print(textwrap.fill(f"{strength['description']}", width=60, initial_indent='    ', subsequent_indent='    '))
-    #     print()
-    # print("-------------------------------------------------------------------------------")
-    # # Print the Weaknesses
-    # print("Weaknesses:")
-    # for weakness in snapshot['synopsis']['Weaknesses']:
-    #     print(f"{weakness['dimension']}: {weakness['description']}")
-    # print("-------------------------------------------------------------------------------")
-    # print("Relationships:")
-    # for relationship in snapshot['synopsis']['Relationships']:
-    #     print(f"{relationship['Connection']} from {relationship['From']} to {relationship['To']}")
-    # print("-------------------------------------------------------------------------------")
-
-    # Generate a
-
-    #generate_spider_chart(snapshot, output_file=os.path.join(output_path, 'profile-spider-chart.png'))
-
-    return snapshot
-
 class DimensionAnalysisState(BaseState):
 
     def __init__(self, state_manager, agent):
-        states = ['Review', 'Education', 'Practice']
+        states = ['Analysis', 'Conversation']
         super().__init__(state_manager, agent, states)
 
         self.handlers = {
-            'Review': self.handle_Review,
-            'Education': self.handle_Education,
+            'Analysis': self.handle_Analysis,
+            'Conversation': self.handle_Conversation,
         }
 
-        self.machine.add_transition(trigger='to_Education', source='Review', dest='Education')
+        self.machine.add_transition(trigger='to_Conversation', source='Analysis', dest='Conversation')
 
-    def handle_Review(self):
-        print("Processing DimensionAnalysisState.Review")
-        print("Let's review your Awareness dimensional profile.")
-        # Use the agent to prompt ChatGPT to review the profile and generate an
-        # analysis and regommended next steps for the user
+    # Generate a Spider Chart based on the user's Awareness Profile
+    def gen_spider_chart(self):
         prompt = {
-
+            # System Role
             'system_role': f"""You are a compassionate neuropsychologist helping {self.agent.user_info['username']}, born {self.agent.user_info['birthdate']}
-             from {self.agent.user_info['culture']}, who has recently completed a self-awareness assessment. Based on the following scores in json format:
+             from {self.agent.user_info['culture']}, who has recently completed a self-awareness assessment. Based on their Awareness scores and profile information:
             {self.agent.user_info['dimensions']}
-            , you are tasked with generating a snapshot of their awareness profile and providing guidance on how to improve their self-awareness.
+            , you are tasked with analyzing and guiding the user to understand and improve their self awareness.
             """,
-            'user_prompt': f"""Provide a personalized, encouraging summary that:
+            # User Prompt
+            'user_prompt': f"""Based on the user's self-awareness profile analyze their strengths and weaknesses utilizing the following neuropsychological frameworks:
 
-            - Highlights their strengths.
-            - Identifies key areas for growth.
-            - Explains why focusing on these areas will benefit them.
-            - Uses language suitable for someone with a their current understanding of self-awareness concepts based on their assessment results.
             - Create the data necessary to create a Spider Chart for each Dimension to show which dimensions are weak. Weaker dimensions will pull the line to the center of the Spider Chart.
 
 JSON Response Format:
@@ -163,15 +103,8 @@ JSON Response Format:
     "spiderChartData": {{
         "labels": [],
         "scores": []
-    }},
-    "synopsis": {{
-        "Strengths": [{{"dimension": "", "description": ""}}],
-        "AreasForGrowth": [{{"dimension": "", "description": ""}}],
     }}
 }}
-
-Awareness Profile:
-{self.agent.user_info.get('dimensions')}
 """
         }
         json_results = self.agent.get_response(prompt)
@@ -180,13 +113,150 @@ Awareness Profile:
         tmp_profile_spider_chart_file = '/tmp/profile-spider-chart.png'
         generate_spider_chart(results, tmp_profile_spider_chart_file)
         display_spider_chart(tmp_profile_spider_chart_file)
-        display_snapshot(results)
-        breakpoint()
-        self.to_Education()
-        breakpoint()
 
-    def handle_Education(self):
-        print("Processing DimensionAnalysisState.Education")
+
+    def display_dimension_analysis(self, results):
+        # Set the text width for wrapping and the indentation
+        text_width = 100
+        indent = ' ' * 4  # 4 spaces
+
+        for category in ['Strengths', 'AreasForGrowth']:
+            if category in results:
+                print('-------')
+                print(category)
+                print('-------\n')
+                dimensions = results[category]
+                for dimension, details in dimensions.items():
+                    print(dimension)
+                    for key, value in details.items():
+                        # Format the section title
+                        section_title = key.replace('_', ' ').capitalize()
+                        print(f"{indent}{section_title}:")
+                        # Wrap the text with indentation
+                        wrapped_text = textwrap.fill(value, width=text_width,
+                                                    initial_indent=indent * 2,
+                                                    subsequent_indent=indent * 2)
+                        print(wrapped_text + '\n')
+                    print('\n')
+
+        # Display the summary section
+        if 'summary' in results:
+            print('-------')
+            print('Summary')
+            print('-------\n')
+            summary = results['summary']
+            for key, value in summary.items():
+                # Format the section title
+                section_title = key.replace('_', ' ').capitalize()
+                print(f"{indent}{section_title}:")
+                # Wrap the text with indentation
+                wrapped_text = textwrap.fill(value, width=text_width,
+                                            initial_indent=indent * 2,
+                                            subsequent_indent=indent * 2)
+                print(wrapped_text + '\n')
+
+        print(f"Prompt Context:\n{results['prompt_context']}")
+
+    def save_dimension_analysis(self, results):
+        # Save the dimensional analysis results to the database for future reference
+        # Save the results to the database for future reference
+        self.agent.db.save_dimension_analysis(self.agent.user_info['id'], results)
+        pass
+
+    def gen_analysis(self):
+        # Use the agent to prompt ChatGPT to Analysis the profile and generate an
+        # analysis and regommended next steps for the user
+        prompt = {
+            # System Role
+            'system_role': f"""You are a compassionate neuropsychologist helping {self.agent.user_info['username']}, born {self.agent.user_info['birthdate']}
+             from {self.agent.user_info['culture']}, who has recently completed a self-awareness assessment. Based on their Awareness scores and profile information:
+            {self.agent.user_info['dimensions']}
+            , you are tasked with analyzing and guiding the user to understand and improve their self awareness.
+
+            Use the following neurolpsychological domains to guide your analysis and recommendations:
+            Utilize the following neuropsychological domains to guide your analysis:
+
+            Attention and Concentration: Assist the user in understanding how their ability to focus and sustain attention affects their self-awareness and daily functioning.
+            Memory Functions: Help the user explore how their working memory, short-term memory, and long-term memory influence their cognitive processes and self-awareness.
+            Language Processing: Guide the user in recognizing how their receptive and expressive language abilities impact their communication skills and understanding of self and others.
+            Sensory-Motor Functions: Support the user in understanding how the integration of sensory input and motor output affects their physical awareness and interaction with the environment.
+            Perceptual Functions: Help the user comprehend how their visual-spatial abilities and object recognition influence their perception of the world and contribute to their self-awareness.
+            Executive Functions: Assist the user in understanding how their planning, decision-making, and inhibitory control affect their goal-directed behaviors and self-regulation.
+            Emotional Processing: Help the user explore how they perceive, interpret, and manage their emotions, and how this impacts their self-awareness and relationships.
+            Social Cognition: Guide the user in recognizing how they understand and interpret social cues and perspectives, influencing their interactions with others.
+            Metacognition: Support the user in understanding their ability to reflect on their own thoughts and cognitive processes, enhancing self-awareness.
+            Motivation and Reward Systems: Assist the user in understanding how their motivation and reward systems drive their behaviors and how leveraging these systems can enhance self-awareness and personal growth.
+
+            Your appoach to working with the user:
+            - Analyze and review the user's strengths and areas for growth based on their self-awareness profile.
+            - Working with the user on specific dimensions will involve:
+              - Education around the dimensions from a neuropsychological and awe inspiring perspective of the human brain, mind, consciousness, and self-awareness.
+              - Practices and techniques that naturally lead from the education and understanding of the dimensions.
+              - Regular reviews and reflections on the user's progress and insights.
+              - Work to create epiphanies by presenting information that is designed to resonate with the user based on their existing profile and detected awareness levels.
+            - Switch between the dimensions as needed to keep the user engaged and interested in their self-awareness journey.
+            """,
+            # User Prompt
+            'user_prompt': f"""Based on the user's self-awareness profile analyze their strengths and weaknesses:
+
+            - Choose the top two highest scoring dimensions to highlight as their strengths.
+            - Choose the top two lowest scoring dimensions to highlight as areas for growth.
+            - Be compassionate with non-judgmental, empathetic and supportive language.
+            - Normalize the Experience and emphasize that everyone has areas to improve, and it's part of the human experience.
+            - Be aware of how different dimensions interact
+            - In the prompt_context save any information that will be useful to send in the next prompt for DimensionAnalysis.
+
+JSON Response Format:
+{{
+    "Strengths": {{
+        "<top strength dimension>": {{
+            "score_understanding": "<description of how this strength impacts their self-awareness>",
+            "why_this_matters": " "<description of how using this strength will benefit them>",
+            "leveraging_this_strength": "<description of how they can leverage this strength to improve their self-awareness>",
+            "an_interesting_fact": "<description that creates a sense of curiosity and awe to fostering epiphanies and insights>"
+        }},
+        "<second strength dimension>": {{ ... }},
+    }},
+    "AreasForGrowth": {{
+        "<top growth dimension>": {{
+            "score_understanding": "<description of how this weakness impacts their self-awareness>",
+            "why_this_matters": " "<description of how improving this weakness will benefit them>",
+            "leveraging_this_strength": "<description of how they can leverage this weakness to improve their self-awareness>",
+            "an_interesting_fact": "<description that creates a sense of curiosity and awe to fostering epiphanies and insights>"
+        }},
+        "<second strength dimension>": {{ ... }},
+    }},
+    "summary": {{
+        "growth_summary": "<summary of how the growth dimensions are releated and why they are important to address first and together>",
+        "strength_summary": "<summary of how the strength dimensions are releated and how they can be leveraged together>",
+        "next_steps": "<summary of how the agent will work with the user to improve their self-awareness moving forward>"
+    }}
+    "prompt_context": ""
+}}
+"""
+        }
+        json_results = self.agent.get_response(prompt, 'gpt-4o')
+        results = json.loads(json_results)
+        return results
+
+    def handle_Analysis(self):
+        print("Processing DimensionAnalysisState.Analysis")
+        print("Let's Analysis your Awareness dimension profile.")
+
+        analysis = self.agent.db.get_dimension_analysis(self.agent.user_info['id'])
+        if analysis:
+            print("Using existing analysis from the database.")
+            results = json.loads(analysis)
+        else:
+            print("Generating new analysis.")
+            results = self.gen_analysis()
+        #self.gen_spider_chart()
+        self.display_dimension_analysis(results)
+        self.save_dimension_analysis(results)
+        self.to_Conversation()
+
+    def handle_Conversation(self):
+        print("Processing DimensionAnalysisState.Conversation")
         #self.to_substate_a2()
         self.state_manager.to_Onboarding()
         breakpoint()

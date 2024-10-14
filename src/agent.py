@@ -48,7 +48,7 @@ class Agent:
         self.db.update_agent_state(self.user_id, self.current_state)
 
     # Interact with ChatGPT via the Open AI API
-    def get_response(self, prompt):
+    def get_response(self, prompt, model="gpt-4o-mini"):
         system_role = prompt['system_role']
         user_prompt = prompt['user_prompt']
 
@@ -58,9 +58,11 @@ class Agent:
             api_key=os.getenv("OPENAI_API_KEY")
         )
         completion = client.chat.completions.create(
-            #model="gpt-3.5-turbo",
-            model="gpt-4o-mini",
+            model=model,
             response_format={ "type": "json_object" },
+            temperature=0.5,
+            top_p=1.0,
+            presence_penalty=0.0,
             messages=[
                 {"role": "system", "content": system_role},
                 {"role": "user", "content": user_prompt}
