@@ -74,15 +74,33 @@ def generate_spider_chart(data, output_file):
 class DimensionAnalysisState(BaseState):
 
     def __init__(self, state_manager, agent):
-        states = ['Analysis', 'Conversation']
+        states = ['Analysis', 'Education']
         super().__init__(state_manager, agent, states)
 
         self.handlers = {
             'Analysis': self.handle_Analysis,
-            'Conversation': self.handle_Conversation,
+            'Education': self.handle_Education,
         }
 
-        self.machine.add_transition(trigger='to_Conversation', source='Analysis', dest='Conversation')
+        self.sub_states = {
+            'Analysis': ['analysis', 'conversation'],
+            'Education': ['conversation']
+        }
+
+        self.sub_state = {
+            'Analysis': self.sub_states['Analysis'][0],
+            'Education': self.sub_states['Education'][0]
+        }
+        self.conversation_context = {
+            'Analysis': "",
+            'Education': "",
+        }
+        self.analysis_json = self.agent.db.get_dimension_analysis(self.agent.user_id)
+
+        self.machine.add_transition(trigger='to_Education', source='Analysis', dest='Education')
+
+    def set_sub_state(self, state, sub_state):
+        self.sub_state[state] = sub_state
 
     # Generate a Spider Chart based on the user's Awareness Profile
     def gen_spider_chart(self):
@@ -107,7 +125,7 @@ JSON Response Format:
 }}
 """
         }
-        json_results = self.agent.get_response(prompt)
+        json_results = self.agent.get_response(prompt=prompt)
         results = json.loads(json_results)
 
         tmp_profile_spider_chart_file = '/tmp/profile-spider-chart.png'
@@ -122,9 +140,9 @@ JSON Response Format:
 
         for category in ['Strengths', 'AreasForGrowth']:
             if category in results:
-                print('-------')
+                print('--------------------------')
                 print(category)
-                print('-------\n')
+                print('--------------------------')
                 dimensions = results[category]
                 for dimension, details in dimensions.items():
                     print(dimension)
@@ -141,7 +159,7 @@ JSON Response Format:
 
         # Display the summary section
         if 'summary' in results:
-            print('-------')
+            print('--------------------------')
             print('Summary')
             print('-------\n')
             summary = results['summary']
@@ -155,47 +173,17 @@ JSON Response Format:
                                             subsequent_indent=indent * 2)
                 print(wrapped_text + '\n')
 
-        print(f"Prompt Context:\n{results['prompt_context']}")
+        #print(f"Assistant Role:\n{results['assistant_role']}")
 
     def save_dimension_analysis(self, results):
         # Save the dimensional analysis results to the database for future reference
         # Save the results to the database for future reference
-        self.agent.db.save_dimension_analysis(self.agent.user_info['id'], results)
-        pass
+        self.agent.db.save_dimension_analysis(self.agent.user_id, results)
 
     def gen_analysis(self):
         # Use the agent to prompt ChatGPT to Analysis the profile and generate an
         # analysis and regommended next steps for the user
         prompt = {
-            # System Role
-            'system_role': f"""You are a compassionate neuropsychologist helping {self.agent.user_info['username']}, born {self.agent.user_info['birthdate']}
-             from {self.agent.user_info['culture']}, who has recently completed a self-awareness assessment. Based on their Awareness scores and profile information:
-            {self.agent.user_info['dimensions']}
-            , you are tasked with analyzing and guiding the user to understand and improve their self awareness.
-
-            Use the following neurolpsychological domains to guide your analysis and recommendations:
-            Utilize the following neuropsychological domains to guide your analysis:
-
-            Attention and Concentration: Assist the user in understanding how their ability to focus and sustain attention affects their self-awareness and daily functioning.
-            Memory Functions: Help the user explore how their working memory, short-term memory, and long-term memory influence their cognitive processes and self-awareness.
-            Language Processing: Guide the user in recognizing how their receptive and expressive language abilities impact their communication skills and understanding of self and others.
-            Sensory-Motor Functions: Support the user in understanding how the integration of sensory input and motor output affects their physical awareness and interaction with the environment.
-            Perceptual Functions: Help the user comprehend how their visual-spatial abilities and object recognition influence their perception of the world and contribute to their self-awareness.
-            Executive Functions: Assist the user in understanding how their planning, decision-making, and inhibitory control affect their goal-directed behaviors and self-regulation.
-            Emotional Processing: Help the user explore how they perceive, interpret, and manage their emotions, and how this impacts their self-awareness and relationships.
-            Social Cognition: Guide the user in recognizing how they understand and interpret social cues and perspectives, influencing their interactions with others.
-            Metacognition: Support the user in understanding their ability to reflect on their own thoughts and cognitive processes, enhancing self-awareness.
-            Motivation and Reward Systems: Assist the user in understanding how their motivation and reward systems drive their behaviors and how leveraging these systems can enhance self-awareness and personal growth.
-
-            Your appoach to working with the user:
-            - Analyze and review the user's strengths and areas for growth based on their self-awareness profile.
-            - Working with the user on specific dimensions will involve:
-              - Education around the dimensions from a neuropsychological and awe inspiring perspective of the human brain, mind, consciousness, and self-awareness.
-              - Practices and techniques that naturally lead from the education and understanding of the dimensions.
-              - Regular reviews and reflections on the user's progress and insights.
-              - Work to create epiphanies by presenting information that is designed to resonate with the user based on their existing profile and detected awareness levels.
-            - Switch between the dimensions as needed to keep the user engaged and interested in their self-awareness journey.
-            """,
             # User Prompt
             'user_prompt': f"""Based on the user's self-awareness profile analyze their strengths and weaknesses:
 
@@ -204,7 +192,9 @@ JSON Response Format:
             - Be compassionate with non-judgmental, empathetic and supportive language.
             - Normalize the Experience and emphasize that everyone has areas to improve, and it's part of the human experience.
             - Be aware of how different dimensions interact
-            - In the prompt_context save any information that will be useful to send in the next prompt for DimensionAnalysis.
+            - In the assistant_role save any information that will be useful when the user enters a conversation about the analysis.
+Awareness Profile:
+{self.agent.user_info['dimensions']}
 
 JSON Response Format:
 {{
@@ -230,33 +220,107 @@ JSON Response Format:
         "growth_summary": "<summary of how the growth dimensions are releated and why they are important to address first and together>",
         "strength_summary": "<summary of how the strength dimensions are releated and how they can be leveraged together>",
         "next_steps": "<summary of how the agent will work with the user to improve their self-awareness moving forward>"
-    }}
-    "prompt_context": ""
+    }},
+    "assistant_role": "<save info useful to the next prompt here>"
 }}
 """
         }
-        json_results = self.agent.get_response(prompt, 'gpt-4o')
+        json_results = self.agent.get_response(prompt=prompt, model='gpt-4o')
         results = json.loads(json_results)
         return results
 
+
+    # State: Analysis
     def handle_Analysis(self):
-        print("Processing DimensionAnalysisState.Analysis")
-        print("Let's Analysis your Awareness dimension profile.")
+        #print("State: DimensionAnalysisState.Analysis")
+        agent_prompt = "Do you have any questions about the analysis? "
+        if self.analysis_json != None:
+            analysis = json.loads(self.analysis_json)
 
-        analysis = self.agent.db.get_dimension_analysis(self.agent.user_info['id'])
-        if analysis:
-            print("Using existing analysis from the database.")
-            results = json.loads(analysis)
-        else:
-            print("Generating new analysis.")
-            results = self.gen_analysis()
-        #self.gen_spider_chart()
-        self.display_dimension_analysis(results)
-        self.save_dimension_analysis(results)
-        self.to_Conversation()
+        if self.sub_state['Analysis'] == 'analysis':
+            print("Let's Analysis your Awareness dimension profile.")
+            if self.analysis_json != None:
+                print("Using existing analysis from the database.")
+            else:
+                print("Generating new analysis.")
+                analysis = self.gen_analysis()
+                self.save_dimension_analysis(analysis)
+            #self.gen_spider_chart()
+            self.display_dimension_analysis(analysis)
+            self.set_sub_state('Analysis', 'conversation')
+            self.conversation_context['Analysis'] = analysis['assistant_role']
+        elif self.sub_state['Analysis'] == 'conversation':
+            if self.conversation_context['Analysis']:
+                agent_prompt = None
 
-    def handle_Conversation(self):
-        print("Processing DimensionAnalysisState.Conversation")
-        #self.to_substate_a2()
-        self.state_manager.to_Onboarding()
-        breakpoint()
+        # Enter a conversation with the user asking them if they have any questions about the analysis
+        prompt_context = f"""
+You are now in a conversation with the user to discuss the analysis of their self-awareness profile.
+When you have detected the user would like to move on to the Eduaction state, indicate so in the json output.
+
+Awareness Profile:
+{self.agent.user_info['dimensions']}
+
+Awareness Analysis:
+{analysis}
+
+JSON Response:
+Rules:
+next_detected_state: Should detect if the user wants to talk abou the Analysis, move on to Education, Practice or reflection, in that order.
+Format:
+{{
+    "next_agent_action": "<Conversation, DisplayAnalysis, DisplaySpiderChart>",
+    "next_detected_state": "<Analysis, Education, Practice, or Reflection>",
+    "agent_response": "<place the agent response to the user here, but DO NOT place the the agent's next question here.>",
+    "next_agent_question": "<agents next question here. Keep the current context unless the user wants to move on.>",
+    "assistant_role": "<save any all conversation context information useful for the next prompt in this field>"
+}}
+"""
+        conversation = self.enter_conversation(
+            prompt_context=prompt_context,
+            assistant_role=self.conversation_context[self.state],
+            agent_prompt=agent_prompt, # To use the last agent prompt
+            model='gpt-4o'
+        )
+        agent_response = json.loads(conversation['agent_response'])
+        if agent_response['next_detected_state'] == 'Education':
+            self.to_Education()
+
+
+    # State: Education
+    def handle_Education(self):
+        #print("Processing DimensionAnalysisState.Education")
+        self.set_sub_state('Education', 'conversation')
+
+        # Enter a conversation with the user asking them if they have any questions about the analysis
+        prompt_context = f"""
+You are now in a conversation with the user to provide Education on the top weakest dimensions of their self-awareness profile.
+When you have detected the user would like to move on to the Practice state, indicate so in the json output.
+
+Awareness Profile:
+{self.agent.user_info['dimensions']}
+
+Awareness Analysis:
+{self.analysis_json}
+
+JSON Response:
+Rules:
+next_detected_state: Detect if it seems like the user wants to switch to Analysis, Practice, or Reflection states, otherwise keep the current state.
+Format:
+{{
+    "next_agent_action": "<Conversation, DisplayAnalysis, DisplaySpiderChart>",
+    "next_detected_state": "<Analysis, Education, Practice, or Reflection>",
+    "agent_response": "<place the agent response to the user here, but DO NOT place the the agent's next question here.>",
+    "next_agent_question": "<agents next question here. Keep the current context unless the user wants to move on.>",
+    "assistant_role": "<save any all conversation context information useful for the next prompt in this field>"
+}}
+"""
+        conversation = self.enter_conversation(
+            prompt_context=prompt_context,
+            assistant_role=self.conversation_context[self.state],
+            agent_prompt=None,
+            model='gpt-4o'
+        )
+        agent_response = json.loads(conversation['agent_response'])
+        #if agent_response['next_detected_state'] == 'Education':
+        #    self.to_Education()

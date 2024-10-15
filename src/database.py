@@ -25,6 +25,9 @@ class Database:
         ''')
 
         # Create agent_state table
+        # Drop the table first
+        #cursor.execute('DROP TABLE IF EXISTS agent_state')
+        self.conn.commit()
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS agent_state (
                 user_id INTEGER PRIMARY KEY,
@@ -34,13 +37,16 @@ class Database:
             )
         ''')
         # Create conversations table
+        # Drop the table first
+        #cursor.execute('DROP TABLE IF EXISTS conversations')
+        #self.conn.commit()
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS conversations (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_id INTEGER,
                 timestamp TIMESTAMP,
+                state TEXT,
                 message TEXT,
-                sender TEXT,
                 FOREIGN KEY(user_id) REFERENCES users(id)
             )
         ''')
@@ -52,6 +58,17 @@ class Database:
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_id INTEGER,
                 analysis TEXT,
+                FOREIGN KEY(user_id) REFERENCES users(id)
+            )
+        ''')
+        self.conn.commit()
+
+        # Create a table for user's conversation context
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS conversation_context (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER,
+                context TEXT,
                 FOREIGN KEY(user_id) REFERENCES users(id)
             )
         ''')
@@ -164,22 +181,58 @@ class Database:
         ''', (user_id, analysis))
         self.conn.commit()
 
-    def save_conversation(self, user_id, message, sender='user'):
+    def delete_dimension_analysis(self, user_id):
+        cursor = self.conn.cursor()
+        cursor.execute('DELETE FROM dimension_analysis WHERE user_id = ?', (user_id,))
+        self.conn.commit()
+
+    def save_conversation(self, user_id, state, message):
+
         cursor = self.conn.cursor()
         timestamp = datetime.now()
         cursor.execute('''
-            INSERT INTO conversations (user_id, timestamp, message, sender)
+            INSERT INTO conversations (user_id, timestamp, state, message)
             VALUES (?, ?, ?, ?)
-        ''', (user_id, timestamp, message, sender))
+        ''', (user_id, timestamp, state, message))
         self.conn.commit()
 
-    def get_conversation_history(self, user_id):
+    def get_conversation(self, user_id, state):
         cursor = self.conn.cursor()
         cursor.execute('''
-            SELECT timestamp, message, sender FROM conversations
-            WHERE user_id = ? ORDER BY timestamp
-        ''', (user_id,))
+            SELECT timestamp, message FROM conversations
+            WHERE user_id = ? and state = ? ORDER BY timestamp
+        ''', (user_id,state,))
         return cursor.fetchall()
+
+    # Get all of the conversations for the provided state and user_id
+    # and return one large string with all of the messages
+    def get_conversation_history(self, user_id, state):
+        cursor = self.conn.cursor()
+        cursor.execute('''
+            SELECT timestamp, message FROM conversations
+            WHERE user_id = ? and state = ? ORDER BY timestamp
+        ''', (user_id,state,))
+        rows = cursor.fetchall()
+        conversation = ""
+        for row in rows:
+            conversation += row[0] + "\n"
+        return conversation
+
+    # Save th conversation state and repalce it if it already exists
+    def save_conversation_state(self, user_id, context):
+        cursor = self.conn.cursor()
+        cursor.execute('''
+            INSERT OR REPLACE INTO conversation_context (user_id, context)
+            VALUES (?, ?)
+        ''', (user_id, context))
+        self.conn.commit()
+
+    def get_conversation_state(self, user_id):
+        cursor = self.conn.cursor()
+        cursor.execute('SELECT context FROM conversation_context WHERE user_id = ?', (user_id,))
+        result = cursor.fetchone()
+        context = json.loads(result[0]) if result else None
+        return context
 
     def close(self):
         self.conn.close()

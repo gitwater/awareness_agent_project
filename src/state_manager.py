@@ -25,6 +25,7 @@ class StateManager:
         self.machine = Machine(model=self, states=StateManager.states, initial=self.state)
         self.machine.add_transition(trigger='to_DimensionAnalysis', source='Onboarding', dest='DimensionAnalysis')
 
+
     def load_state(self):
         saved_state_str = self.agent.db.get_agent_state(self.agent.user_id)
         # Convert json string to dict
@@ -36,8 +37,6 @@ class StateManager:
             }
 
         self.state = cur_state['state']
-        if self.state in cur_state.keys():
-            self.sub_state = cur_state[self.state]['state']
 
     def save_state(self):
         saved_state_str = self.agent.db.get_agent_state(self.agent.user_id)
@@ -46,7 +45,7 @@ class StateManager:
             saved_state = json.loads(saved_state_str)
         else:
             saved_state = {
-                'state': '',
+                'state': ''
             }
 
         saved_state['state'] = self.state
