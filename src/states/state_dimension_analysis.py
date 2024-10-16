@@ -74,7 +74,7 @@ def generate_spider_chart(data, output_file):
 class DimensionAnalysisState(BaseState):
 
     def __init__(self, state_manager, agent):
-        states = ['Analysis', 'Education']
+        states = ['Analysis', 'Education', 'Practice', 'Reflection']
         super().__init__(state_manager, agent, states)
 
         self.handlers = {
@@ -96,7 +96,6 @@ class DimensionAnalysisState(BaseState):
             'Education': "",
         }
         self.analysis_json = self.agent.db.get_dimension_analysis(self.agent.user_id)
-
         self.machine.add_transition(trigger='to_Education', source='Analysis', dest='Education')
 
     def set_sub_state(self, state, sub_state):
@@ -276,9 +275,8 @@ Format:
     "assistant_role": "<save any all conversation context information useful for the next prompt in this field>"
 }}
 """
-        conversation = self.enter_conversation(
+        conversation = self.agent.enter_conversation(
             prompt_context=prompt_context,
-            assistant_role=self.conversation_context[self.state],
             agent_prompt=agent_prompt, # To use the last agent prompt
             model='gpt-4o'
         )
@@ -315,11 +313,10 @@ Format:
     "assistant_role": "<save any all conversation context information useful for the next prompt in this field>"
 }}
 """
-        conversation = self.enter_conversation(
+        conversation = self.agent.enter_conversation(
             prompt_context=prompt_context,
-            assistant_role=self.conversation_context[self.state],
             agent_prompt=None,
-            model='gpt-4o'
+            model='gpt-4o',
         )
         agent_response = json.loads(conversation['agent_response'])
         #if agent_response['next_detected_state'] == 'Education':

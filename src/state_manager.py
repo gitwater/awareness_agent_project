@@ -19,7 +19,11 @@ class StateManager:
 
         self.agent = agent
 
-        self.state = None
+        self.global_state = {
+            'state': self.states[0],
+            'states': {}
+        }
+        #self.sub_state = None
         self.load_state()
 
         self.machine = Machine(model=self, states=StateManager.states, initial=self.state)
@@ -31,25 +35,23 @@ class StateManager:
         # Convert json string to dict
         if saved_state_str:
             cur_state = json.loads(saved_state_str)
-        else:
-            cur_state = {
-                'state': self.states[0]
-            }
+            self.global_state = cur_state
+            for state in cur_state['states'].keys():
+                self.state_class_obj[state].state = cur_state['states'][state]['state']
 
-        self.state = cur_state['state']
+        self.state = self.global_state['state']
 
     def save_state(self):
-        saved_state_str = self.agent.db.get_agent_state(self.agent.user_id)
-        # Convert json string to dict
-        if saved_state_str:
-            saved_state = json.loads(saved_state_str)
-        else:
-            saved_state = {
-                'state': ''
-            }
 
-        saved_state['state'] = self.state
-        saved_state[self.state] = { 'state': self.sub_state }
+        saved_state = {
+            'state': self.state,
+            'states': {
+            },
+        }
+
+        for state in self.states:
+            saved_state['states'][state] = { 'state': self.state_class_obj[state].state }
+
         new_state_str = json.dumps(saved_state)
         self.agent.db.save_agent_state(self.agent.user_id, new_state_str)
 

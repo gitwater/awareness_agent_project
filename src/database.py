@@ -27,7 +27,7 @@ class Database:
         # Create agent_state table
         # Drop the table first
         #cursor.execute('DROP TABLE IF EXISTS agent_state')
-        self.conn.commit()
+        #self.conn.commit()
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS agent_state (
                 user_id INTEGER PRIMARY KEY,
@@ -65,7 +65,7 @@ class Database:
 
         # Create a table for user's conversation context
         cursor.execute('''
-            CREATE TABLE IF NOT EXISTS conversation_context (
+            CREATE TABLE IF NOT EXISTS conversation_events (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_id INTEGER,
                 context TEXT,
@@ -186,7 +186,7 @@ class Database:
         cursor.execute('DELETE FROM dimension_analysis WHERE user_id = ?', (user_id,))
         self.conn.commit()
 
-    def save_conversation(self, user_id, state, message):
+    def save_conversation_event(self, user_id, state, message):
 
         cursor = self.conn.cursor()
         timestamp = datetime.now()
@@ -196,24 +196,16 @@ class Database:
         ''', (user_id, timestamp, state, message))
         self.conn.commit()
 
-    def get_conversation(self, user_id, state):
+    def get_conversation_events(self, user_id, state=None, num_events=10):
         cursor = self.conn.cursor()
-        cursor.execute('''
-            SELECT timestamp, message FROM conversations
-            WHERE user_id = ? and state = ? ORDER BY timestamp
-        ''', (user_id,state,))
-        return cursor.fetchall()
+        state_str = ""
+        if state != None:
+            state_str = f"AND state = '{state}'"
 
-    # Get all of the conversations for the provided state and user_id
-    # and return one large string with all of the messages
-    def get_conversation_history(self, user_id, state):
-        cursor = self.conn.cursor()
-        cursor.execute('''
-            SELECT timestamp, message FROM conversations
-            WHERE user_id = ? and state = ? ORDER BY timestamp
-        ''', (user_id,state,))
-        rows = cursor.fetchall()
+        # Include state_str
+        cursor.execute(f'SELECT message FROM conversations WHERE user_id = ? {state_str} ORDER BY timestamp DESC LIMIT {num_events}', (user_id,))
         conversation = ""
+        rows = cursor.fetchall()
         for row in rows:
             conversation += row[0] + "\n"
         return conversation

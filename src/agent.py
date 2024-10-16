@@ -5,14 +5,18 @@ from state_manager import StateManager
 from openai import OpenAI
 import os
 import readline
-
+import sys
+import textwrap
+import json
 class MyInputClass:
-    def read_input(self, prompt):
+    def __init__(self):
         # Enable readline history and editing capabilities
         readline.parse_and_bind("tab: complete")
         readline.parse_and_bind("set editing-mode emacs")  # Enables Ctrl-A, Ctrl-E, etc.
-        readline.parse_and_bind('"\e[A": history-search-backward') # Up arrow
-        readline.parse_and_bind('"\e[B": history-search-forward') # Down arrow
+        readline.parse_and_bind('"\\e[A": history-search-backward')  # Up arrow
+        readline.parse_and_bind('"\\e[B": history-search-forward')   # Down arrow
+
+    def read_input(self, prompt):
 
         try:
             # Read input from the prompt with enhanced capabilities
@@ -35,6 +39,7 @@ class Agent:
         self.conversation_state = self.db.get_conversation_state(self.user_id)
         #self.nlp_processor = NLPProcessor()
         self.focus_dimension = None  # The dimension currently being focused on
+
         self.system_role = f"""You are a compassionate neuropsychologist helping {self.user_info['username']}, born {self.user_info['birthdate']}
 from {self.user_info['culture']}, who has completed a self-awareness assessment. Based on their Awareness scores and profile information
 you are tasked with analyzing and guiding the user to understand and improve their self awareness.
@@ -129,3 +134,96 @@ DO NOT use markup language in any of your responses, this is used on an CLI.
         result = completion.choices[0].message.content
 
         return result
+
+# Handles the Agent conversation within a particular state
+    def enter_conversation(self, prompt_context, assistant_role=None, agent_prompt=None, model="gpt-4o-mini", state=None):
+        print('--------------------------------------------------------------------')
+        if agent_prompt is None:
+            agent_prompt = self.conversation_state['next_agent_question']
+
+        if assistant_role is None:
+            assistant_role = self.db.get_conversation_events(self.user_id)
+
+        wrapped_text = textwrap.fill(
+            agent_prompt,
+            width=100,
+            initial_indent='    ',
+            subsequent_indent='    ')
+        #print(f"State: {state}")
+        print(f"State: {self.state_manager.state}.{self.state_manager.state_class_obj[self.state_manager.state].state}")
+        user_input = self.read_input(f"Agent:\n{wrapped_text}")
+        prompt = {
+            "system_role": self.system_role,
+            "user_prompt": f"{prompt_context}\n\nPlease answer this question from the user:\n{user_input}",
+            "assistant_role": assistant_role,
+        }
+        results = self.get_response(
+            prompt=prompt,
+            model=model,
+        )
+        conversation = {
+            "user_input": user_input,
+            "agent_response": results,
+        }
+        agent_response = json.loads(conversation['agent_response'])
+        self.db.save_conversation_state(self.user_id, conversation['agent_response'])
+        self.conversation_state = agent_response
+        # Print the resposne using textwrap to limit to 100 characters per line
+        wrapped_text = textwrap.fill(
+            agent_response['agent_response'],
+            width=100,
+            initial_indent='    ',
+            subsequent_indent='    ')
+        print(f"\nAgent:\n{wrapped_text}\n")
+
+        #print('--------------------------------------------------------------------')
+        self.save_conversation(state, conversation)
+
+        return conversation
+
+    def save_conversation(self, state, conversation):
+        agent_response = json.loads(conversation['agent_response'])
+        message = f"User: {conversation['user_input']}\nAgent: {agent_response['agent_response']}"
+        message_history = self.db.get_conversation_events(self.user_id, state)
+        save_conversation = True
+        # if message_history != None and len(message_history) > 0:
+            # Check if the conversation already happened and decide if this one has any new information before saving
+            # By asking the agent to compare the new conversation with the last one
+            # agent_prompt = f"""
+            # Last Conversation:
+            # user_input: {conversation['user_input']}
+            # agent_response: {conversation['agent_response']}
+
+            # JSON response format:
+            # {{
+            #     "save_conversation": true/false,
+            #     "normalized_user_input": "<Reduce the number of words of the user input to the minimum necessary while preserving meaning and intent>",
+            #     "normalized_agent_response": "<Reduce the number of words of the agent response to the minimum necessary while preserving meaning and intent>"
+            # }}
+
+            # Start Message history:
+            # {message_history}
+            # End Message history:
+
+            # Comparing the last conversation with the message history, has a similar or exact conversation already occurred?
+            # If the new conversation provides new insights or information useful for agent context, then place 'true' in the save_conversation json field other wise set it to 'false'.
+            # """
+        agent_prompt = f"""
+        user_input: {conversation['user_input']}
+        agent_response: {conversation['agent_response']}
+
+        JSON response format:
+        {{
+            "normalized_user_input": "<Reduce the number of words of the user input to the minimum necessary while preserving meaning and intent>",
+            "normalized_agent_response": "<Reduce the number of words of the agent response to the minimum necessary while preserving meaning and intent>"
+        }}
+        """
+        prompt = {
+            'user_prompt': agent_prompt,
+        }
+        response = self.get_response(prompt)
+        normalized_data = json.loads(response)
+        #save_conversation = json.loads(response)['save_conversation']
+        message = f"user_input: {normalized_data['normalized_user_input']}\nagent_response: {normalized_data['normalized_agent_response']}"
+        #if save_conversation == True:
+        self.db.save_conversation_event(self.user_id, state, message)
