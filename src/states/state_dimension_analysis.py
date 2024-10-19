@@ -74,35 +74,34 @@ def generate_spider_chart(data, output_file):
 class DimensionAnalysisState(BaseState):
 
     def __init__(self, state_manager, agent):
-        states = ['Analysis', 'Education', 'Practice', 'Reflection']
-        super().__init__(state_manager, agent, states)
+
+        sub_states = ['Analysis', 'SpiderChart']
+        super().__init__(state_manager, agent, sub_states)
+
+        self.add_command('show spider chart', self.display_spider_chart, description='Display the Spider Chart')
+        self.add_command('show analysis', self.display_dimension_analysis, description='Display the Dimensional Analysis')
 
         self.handlers = {
             'Analysis': self.handle_Analysis,
-            'Education': self.handle_Education,
+            'SpiderChart': self.handle_SpiderChart,
         }
 
-        self.sub_states = {
-            'Analysis': ['analysis', 'conversation'],
-            'Education': ['conversation']
-        }
-
-        self.sub_state = {
-            'Analysis': self.sub_states['Analysis'][0],
-            'Education': self.sub_states['Education'][0]
-        }
-        self.conversation_context = {
-            'Analysis': "",
-            'Education': "",
-        }
+        # Generate the Dimensional Analysis if it does not exist
+        self.analysis = None
         self.analysis_json = self.agent.db.get_dimension_analysis(self.agent.user_id)
-        self.machine.add_transition(trigger='to_Education', source='Analysis', dest='Education')
+        if self.analysis_json == None:
+            self.gen_analysis()
+        else:
+            self.analysis = json.loads(self.analysis_json)
 
-    def set_sub_state(self, state, sub_state):
-        self.sub_state[state] = sub_state
+        # Spider Chart Data
+        self.spider_chart_data_json = None
+
+        self.machine.add_transition(trigger='to_SpiderChart', source='Analysis', dest='SpiderChart')
+        self.machine.add_transition(trigger='to_Analysis', source='SpiderChart', dest='Analysis')
 
     # Generate a Spider Chart based on the user's Awareness Profile
-    def gen_spider_chart(self):
+    def display_spider_chart(self):
         prompt = {
             # System Role
             'system_role': f"""You are a compassionate neuropsychologist helping {self.agent.user_info['username']}, born {self.agent.user_info['birthdate']}
@@ -126,23 +125,23 @@ JSON Response Format:
         }
         json_results = self.agent.get_response(prompt=prompt)
         results = json.loads(json_results)
-
+        self.spider_chart_data_json = json_results
         tmp_profile_spider_chart_file = '/tmp/profile-spider-chart.png'
         generate_spider_chart(results, tmp_profile_spider_chart_file)
         display_spider_chart(tmp_profile_spider_chart_file)
+        self.to_SpiderChart()
 
 
-    def display_dimension_analysis(self, results):
+    def display_dimension_analysis(self):
         # Set the text width for wrapping and the indentation
         text_width = 100
         indent = ' ' * 4  # 4 spaces
-
         for category in ['Strengths', 'AreasForGrowth']:
-            if category in results:
+            if category in self.analysis:
                 print('--------------------------')
                 print(category)
                 print('--------------------------')
-                dimensions = results[category]
+                dimensions = self.analysis[category]
                 for dimension, details in dimensions.items():
                     print(dimension)
                     for key, value in details.items():
@@ -157,11 +156,11 @@ JSON Response Format:
                     print('\n')
 
         # Display the summary section
-        if 'summary' in results:
+        if 'summary' in self.analysis:
             print('--------------------------')
             print('Summary')
             print('-------\n')
-            summary = results['summary']
+            summary = self.analysis['summary']
             for key, value in summary.items():
                 # Format the section title
                 section_title = key.replace('_', ' ').capitalize()
@@ -171,13 +170,7 @@ JSON Response Format:
                                             initial_indent=indent * 2,
                                             subsequent_indent=indent * 2)
                 print(wrapped_text + '\n')
-
-        #print(f"Assistant Role:\n{results['assistant_role']}")
-
-    def save_dimension_analysis(self, results):
-        # Save the dimensional analysis results to the database for future reference
-        # Save the results to the database for future reference
-        self.agent.db.save_dimension_analysis(self.agent.user_id, results)
+        self.to_Analysis()
 
     def gen_analysis(self):
         # Use the agent to prompt ChatGPT to Analysis the profile and generate an
@@ -225,33 +218,29 @@ JSON Response Format:
 """
         }
         json_results = self.agent.get_response(prompt=prompt, model='gpt-4o')
+        self.analysis_json = json_results
         results = json.loads(json_results)
-        return results
+        self.analysis = results
+        self.agent.db.save_dimension_analysis(self.agent.user_id, json_results)
+        return
 
+    def process_state(self):
+        # Call super to process the state
+        super().process_state()
+
+    def enter_conversation(self, prompt_context, agent_prompt):
+        self.agent.enter_conversation(
+            prompt_context=prompt_context,
+            agent_prompt=agent_prompt, # To use the last agent prompt
+            model='gpt-4o'
+        )
+        return True
 
     # State: Analysis
     def handle_Analysis(self):
-        #print("State: DimensionAnalysisState.Analysis")
+        # Customize the role and prompt for the Analysis sub state
         agent_prompt = "Do you have any questions about the analysis? "
-        if self.analysis_json != None:
-            analysis = json.loads(self.analysis_json)
-
-        if self.sub_state['Analysis'] == 'analysis':
-            print("Let's Analysis your Awareness dimension profile.")
-            if self.analysis_json != None:
-                print("Using existing analysis from the database.")
-            else:
-                print("Generating new analysis.")
-                analysis = self.gen_analysis()
-                self.save_dimension_analysis(analysis)
-            #self.gen_spider_chart()
-            self.display_dimension_analysis(analysis)
-            self.set_sub_state('Analysis', 'conversation')
-            self.conversation_context['Analysis'] = analysis['assistant_role']
-        elif self.sub_state['Analysis'] == 'conversation':
-            if self.conversation_context['Analysis']:
-                agent_prompt = None
-
+        agent_prompt = None
         # Enter a conversation with the user asking them if they have any questions about the analysis
         prompt_context = f"""
 You are now in a conversation with the user to discuss the analysis of their self-awareness profile.
@@ -260,50 +249,12 @@ When you have detected the user would like to move on to the Eduaction state, in
 Awareness Profile:
 {self.agent.user_info['dimensions']}
 
-Awareness Analysis:
-{analysis}
-
-JSON Response:
-Rules:
-next_detected_state: Should detect if the user wants to talk abou the Analysis, move on to Education, Practice or reflection, in that order.
-Format:
-{{
-    "next_agent_action": "<Conversation, DisplayAnalysis, DisplaySpiderChart>",
-    "next_detected_state": "<Analysis, Education, Practice, or Reflection>",
-    "agent_response": "<place the agent response to the user here, but DO NOT place the the agent's next question here.>",
-    "next_agent_question": "<agents next question here. Keep the current context unless the user wants to move on.>",
-    "assistant_role": "<save any all conversation context information useful for the next prompt in this field>"
-}}
-"""
-        conversation = self.agent.enter_conversation(
-            prompt_context=prompt_context,
-            agent_prompt=agent_prompt, # To use the last agent prompt
-            model='gpt-4o'
-        )
-        agent_response = json.loads(conversation['agent_response'])
-        if agent_response['next_detected_state'] == 'Education':
-            self.to_Education()
-
-
-    # State: Education
-    def handle_Education(self):
-        #print("Processing DimensionAnalysisState.Education")
-        self.set_sub_state('Education', 'conversation')
-
-        # Enter a conversation with the user asking them if they have any questions about the analysis
-        prompt_context = f"""
-You are now in a conversation with the user to provide Education on the top weakest dimensions of their self-awareness profile.
-When you have detected the user would like to move on to the Practice state, indicate so in the json output.
-
-Awareness Profile:
-{self.agent.user_info['dimensions']}
-
-Awareness Analysis:
+Dimensional Analysis:
 {self.analysis_json}
 
 JSON Response:
 Rules:
-next_detected_state: Detect if it seems like the user wants to switch to Analysis, Practice, or Reflection states, otherwise keep the current state.
+next_detected_state: Should detect if the user wants to talk about the Analysis, move on to Education, Practice or reflection, in that order.
 Format:
 {{
     "next_agent_action": "<Conversation, DisplayAnalysis, DisplaySpiderChart>",
@@ -313,11 +264,33 @@ Format:
     "assistant_role": "<save any all conversation context information useful for the next prompt in this field>"
 }}
 """
-        conversation = self.agent.enter_conversation(
-            prompt_context=prompt_context,
-            agent_prompt=None,
-            model='gpt-4o',
-        )
-        agent_response = json.loads(conversation['agent_response'])
-        #if agent_response['next_detected_state'] == 'Education':
-        #    self.to_Education()
+        return self.enter_conversation(prompt_context, agent_prompt)
+
+    def handle_SpiderChart(self):
+        # Customize the role and prompt for the Analysis sub state
+        agent_prompt = None
+        # Enter a conversation with the user asking them if they have any questions about the analysis
+        prompt_context = f"""
+You have generated and displayed a Spider Chart of the users dimension profile.
+
+Have a conversation with the user to discuss the Spider Chart and answer any questions they may have.
+
+Awareness Profile:
+{self.agent.user_info['dimensions']}
+
+Spider Chart Data:
+{self.spider_chart_data_json}
+
+JSON Response Format:
+Rules:
+next_detected_state: Should detect if the user wants to talk about the Analysis, move on to Education, Practice or reflection, in that order.
+Format:
+{{
+    "next_agent_action": "<DiscussSpiderChart, DiscussAnalysis, SwitchTopics>",
+    "next_detected_state": "<Analysis, Education, Practice, or Reflection>",
+    "agent_response": "<place the agent response to the user here, but DO NOT place the the agent's next question here.>",
+    "next_agent_question": "<agents next question here. Keep the current context unless the user wants to move on.>",
+    "assistant_role": "<save any all conversation context information useful for the next prompt in this field>"
+}}
+"""
+        return self.enter_conversation(prompt_context, agent_prompt)

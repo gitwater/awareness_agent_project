@@ -3,8 +3,8 @@ from .base_state import BaseState
 class OnboardingState(BaseState):
 
     def __init__(self, state_manager, agent):
-        states = ['Goals']
-        super().__init__(state_manager, agent, states)
+        sub_states = ['Goals']
+        super().__init__(state_manager, agent, sub_states)
 
         self.handlers = {
             'Goals': self.handle_Goals,

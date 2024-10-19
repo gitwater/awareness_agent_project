@@ -64,15 +64,17 @@ class Database:
         self.conn.commit()
 
         # Create a table for user's conversation context
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS conversation_events (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id INTEGER,
-                context TEXT,
-                FOREIGN KEY(user_id) REFERENCES users(id)
-            )
-        ''')
-        self.conn.commit()
+        #cursor.execute('DROP TABLE IF EXISTS conversations')
+        #self.conn.commit()
+        # cursor.execute('''
+        #     CREATE TABLE IF NOT EXISTS conversation_events (
+        #         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        #         user_id INTEGER,
+        #         context TEXT,
+        #         FOREIGN KEY(user_id) REFERENCES users(id)
+        #     )
+        # ''')
+        # self.conn.commit()
 
     # Save user information to the database
     # Insert if it is new, otherwise update
@@ -202,8 +204,8 @@ class Database:
         if state != None:
             state_str = f"AND state = '{state}'"
 
-        # Include state_str
-        cursor.execute(f'SELECT message FROM conversations WHERE user_id = ? {state_str} ORDER BY timestamp DESC LIMIT {num_events}', (user_id,))
+        # Get the last 10 conversation events ordered from oldest to newest
+        cursor.execute(f'SELECT message FROM conversations WHERE user_id = ? {state_str} ORDER BY timestamp ASC LIMIT {num_events}', (user_id,))
         conversation = ""
         rows = cursor.fetchall()
         for row in rows:

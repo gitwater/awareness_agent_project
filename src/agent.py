@@ -8,6 +8,8 @@ import readline
 import sys
 import textwrap
 import json
+from assistants.conversation import ConversationAssistant
+
 class MyInputClass:
     def __init__(self):
         # Enable readline history and editing capabilities
@@ -35,7 +37,6 @@ class Agent:
         self.db = db_connection
         self.user_id = user_info['id']
         #self.db.delete_dimension_analysis(self.user_id)
-        self.state_manager = StateManager(agent=self)
         self.conversation_state = self.db.get_conversation_state(self.user_id)
         #self.nlp_processor = NLPProcessor()
         self.focus_dimension = None  # The dimension currently being focused on
@@ -69,13 +70,16 @@ Your appoach to working with the user:
 
 DO NOT use markup language in any of your responses, this is used on an CLI.
 """
+        self.state_manager = StateManager(agent=self)
+
 
     # Agent Main Loop
     # Checks the current state of the agent and either asks questsion or
     # waits for user input
     def main_loop(self):
-        while True:
-            self.state_manager.process_state()
+        keep_going = True
+        while keep_going:
+            keep_going = self.state_manager.process_state()
             # if self.current_state == 'Conversation':
             #     user_input = input("> ")
             # else:
@@ -117,10 +121,16 @@ DO NOT use markup language in any of your responses, this is used on an CLI.
             api_key=os.getenv("OPENAI_API_KEY")
         )
         prompt_messages = []
-        prompt_messages.append({"role": "system", "content": self.system_role})
-        prompt_messages.append({"role": "user", "content": prompt['user_prompt']})
+        # System Role Override
+        if 'system_role' in prompt.keys():
+            prompt_messages.append({"role": "system", "content": prompt['system_role']})
+        else:
+            prompt_messages.append({"role": "system", "content": self.system_role})
+        # Assistant Role
         if 'assistant_role' in prompt.keys():
             prompt_messages.append({"role": "assistant", "content": prompt['assistant_role']})
+        # User Prompt
+        prompt_messages.append({"role": "user", "content": prompt['user_prompt']})
         completion = client.chat.completions.create(
             model=model,
             response_format={ "type": "json_object" },
@@ -137,7 +147,7 @@ DO NOT use markup language in any of your responses, this is used on an CLI.
 
 # Handles the Agent conversation within a particular state
     def enter_conversation(self, prompt_context, assistant_role=None, agent_prompt=None, model="gpt-4o-mini", state=None):
-        print('--------------------------------------------------------------------')
+        #print('--------------------------------------------------------------------')
         if agent_prompt is None:
             agent_prompt = self.conversation_state['next_agent_question']
 
@@ -150,8 +160,15 @@ DO NOT use markup language in any of your responses, this is used on an CLI.
             initial_indent='    ',
             subsequent_indent='    ')
         #print(f"State: {state}")
-        print(f"State: {self.state_manager.state}.{self.state_manager.state_class_obj[self.state_manager.state].state}")
+        state_obj = self.state_manager.state_class_obj[self.state_manager.state]
+        # Display State and Commands
+        self.state_manager.display_console_hud()
         user_input = self.read_input(f"Agent:\n{wrapped_text}")
+        # Detect if the user has entered a command
+        if user_input in state_obj.commands.keys():
+            # Execute the command
+            state_obj.commands[user_input]['handler']()
+            return None
         prompt = {
             "system_role": self.system_role,
             "user_prompt": f"{prompt_context}\n\nPlease answer this question from the user:\n{user_input}",
@@ -176,54 +193,7 @@ DO NOT use markup language in any of your responses, this is used on an CLI.
             subsequent_indent='    ')
         print(f"\nAgent:\n{wrapped_text}\n")
 
-        #print('--------------------------------------------------------------------')
-        self.save_conversation(state, conversation)
+        conversation_assistant = ConversationAssistant(self)
+        conversation_assistant.save_conversation(state, conversation)
 
         return conversation
-
-    def save_conversation(self, state, conversation):
-        agent_response = json.loads(conversation['agent_response'])
-        message = f"User: {conversation['user_input']}\nAgent: {agent_response['agent_response']}"
-        message_history = self.db.get_conversation_events(self.user_id, state)
-        save_conversation = True
-        # if message_history != None and len(message_history) > 0:
-            # Check if the conversation already happened and decide if this one has any new information before saving
-            # By asking the agent to compare the new conversation with the last one
-            # agent_prompt = f"""
-            # Last Conversation:
-            # user_input: {conversation['user_input']}
-            # agent_response: {conversation['agent_response']}
-
-            # JSON response format:
-            # {{
-            #     "save_conversation": true/false,
-            #     "normalized_user_input": "<Reduce the number of words of the user input to the minimum necessary while preserving meaning and intent>",
-            #     "normalized_agent_response": "<Reduce the number of words of the agent response to the minimum necessary while preserving meaning and intent>"
-            # }}
-
-            # Start Message history:
-            # {message_history}
-            # End Message history:
-
-            # Comparing the last conversation with the message history, has a similar or exact conversation already occurred?
-            # If the new conversation provides new insights or information useful for agent context, then place 'true' in the save_conversation json field other wise set it to 'false'.
-            # """
-        agent_prompt = f"""
-        user_input: {conversation['user_input']}
-        agent_response: {conversation['agent_response']}
-
-        JSON response format:
-        {{
-            "normalized_user_input": "<Reduce the number of words of the user input to the minimum necessary while preserving meaning and intent>",
-            "normalized_agent_response": "<Reduce the number of words of the agent response to the minimum necessary while preserving meaning and intent>"
-        }}
-        """
-        prompt = {
-            'user_prompt': agent_prompt,
-        }
-        response = self.get_response(prompt)
-        normalized_data = json.loads(response)
-        #save_conversation = json.loads(response)['save_conversation']
-        message = f"user_input: {normalized_data['normalized_user_input']}\nagent_response: {normalized_data['normalized_agent_response']}"
-        #if save_conversation == True:
-        self.db.save_conversation_event(self.user_id, state, message)
