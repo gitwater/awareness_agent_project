@@ -6,21 +6,33 @@ from states.state_education import EducationState
 import json
 
 class StateManager:
-    states = ['Onboarding', 'DimensionAnalysis']
+    #states = ['Onboarding', 'Education', 'Practice', 'Reflection']
+    states = ['Onboarding']
 
     def __init__(self, agent):
+        self.agent = agent
         self.handlers = {
             'Onboarding': self.handle_Onboarding,
             'DimensionAnalysis': self.handle_DimensionAnalysis,
             'Education': self.handle_Education,
         }
-        self.state_class_obj = {
-            'Onboarding': OnboardingState(self, agent),
-            'DimensionAnalysis': DimensionAnalysisState(self, agent),
-            'Education': EducationState(self, agent),
-        }
+        # self.state_class_obj = {
+        #     'Onboarding': OnboardingState(self, agent),
+        #     'DimensionAnalysis': DimensionAnalysisState(self, agent),
+        #     'Education': EducationState(self, agent),
+        # }
+        # Automatically generate the self.stater_class_obj dictionary
+        self.state_class_obj = {}
+        for state in self.states:
+            # Check if the the f"{state}State" class exists in the global namepsace
+            # If it does, create an instance of it and add it to the state_class_obj dictionary
+            if f"{state}State" not in globals():
+                continue
+            state_class = globals()[f"{state}State"]
+            self.state_class_obj[state] = state_class(state, self)
+            self.state_class_obj[state].init_state()
 
-        self.agent = agent
+
 
         self.global_state = {
             'state': self.states[0],
@@ -58,9 +70,12 @@ class StateManager:
         }
 
         for state in self.states:
-            saved_state['states'][state] = { 'state': self.state_class_obj[state].state }
+            # Check if the stat_class_obj exists
+            if state in self.state_class_obj.keys():
+                saved_state['states'][state] = { 'state': self.state_class_obj[state].state }
 
         new_state_str = json.dumps(saved_state)
+        breakpoint()
         self.agent.db.save_agent_state(self.agent.user_id, new_state_str)
 
     def process_state(self):

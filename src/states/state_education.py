@@ -7,10 +7,10 @@ import textwrap
 import json
 
 class EducationState(BaseState):
+    states = ['Introduction', 'Neuropsychology', 'Influences', 'Implications', 'Challenges', 'Culture', 'Advancements', 'Summary', 'Resources']
 
-    def __init__(self, state_manager, agent):
-        sub_states = ['Introduction', 'Neuropsychology', 'Influences', 'Implications', 'Challenges', 'Culture', 'Advancements', 'Summary', 'Resources']
-        super().__init__(state_manager, agent, sub_states)
+    def __init__(self, state, state_manager):
+        super().__init__(state, state_manager)
 
         self.handlers = {
             'Introduction': self.handle_Introduction,

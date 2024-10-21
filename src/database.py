@@ -26,8 +26,8 @@ class Database:
 
         # Create agent_state table
         # Drop the table first
-        #cursor.execute('DROP TABLE IF EXISTS agent_state')
-        #self.conn.commit()
+        cursor.execute('DROP TABLE IF EXISTS agent_state')
+        self.conn.commit()
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS agent_state (
                 user_id INTEGER PRIMARY KEY,
@@ -63,18 +63,31 @@ class Database:
         ''')
         self.conn.commit()
 
-        # Create a table for user's conversation context
-        #cursor.execute('DROP TABLE IF EXISTS conversations')
-        #self.conn.commit()
-        # cursor.execute('''
-        #     CREATE TABLE IF NOT EXISTS conversation_events (
-        #         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        #         user_id INTEGER,
-        #         context TEXT,
-        #         FOREIGN KEY(user_id) REFERENCES users(id)
-        #     )
-        # ''')
-        # self.conn.commit()
+        # Create a table for various states
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS state (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER,
+                state TEXT,
+                sub_state TEXT,
+                state_data TEXT,
+                timestamp TIMESTAMP,
+                FOREIGN KEY(user_id) REFERENCES users(id)
+            )
+        ''')
+        self.conn.commit()
+
+        # Createa  table for storing user goals
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS user_goals (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER,
+                goals TEXT,
+                FOREIGN KEY(user_id) REFERENCES users(id)
+            )
+        ''')
+        self.conn.commit()
+
 
     # Save user information to the database
     # Insert if it is new, otherwise update
@@ -227,6 +240,40 @@ class Database:
         result = cursor.fetchone()
         context = json.loads(result[0]) if result else None
         return context
+
+    # Get a state context
+    def get_state(self, user_id, state, sub_state):
+        cursor = self.conn.cursor()
+        cursor.execute('SELECT state_data FROM state WHERE user_id = ? AND state = ? AND sub_state = ?', (user_id, state, sub_state))
+        result = cursor.fetchone()
+        state_data = json.loads(result[0]) if result else None
+        return state_data
+
+    # Save a state context
+    def save_state(self, user_id, state, sub_state, state_data):
+        cursor = self.conn.cursor()
+        cursor.execute('''
+            INSERT OR REPLACE INTO state (user_id, state, sub_state, state_data, timestamp)
+            VALUES (?, ?, ?, ?, ?)
+        ''', (user_id, state, sub_state, json.dumps(state_data), datetime.now()))
+        self.conn.commit()
+
+    # Get user goals
+    def get_user_goals(self, user_id):
+        cursor = self.conn.cursor()
+        cursor.execute('SELECT goals FROM user_goals WHERE user_id = ?', (user_id,))
+        result = cursor.fetchone()
+        goals = json.loads(result[0]) if result else None
+        return goals
+
+    # Save user goals
+    def save_user_goals(self, user_id, goals):
+        cursor = self.conn.cursor()
+        cursor.execute('''
+            INSERT OR REPLACE INTO user_goals (user_id, goals)
+            VALUES (?, ?)
+        ''', (user_id, json.dumps(goals)))
+        self.conn.commit()
 
     def close(self):
         self.conn.close()

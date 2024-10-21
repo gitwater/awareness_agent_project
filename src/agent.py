@@ -41,35 +41,25 @@ class Agent:
         #self.nlp_processor = NLPProcessor()
         self.focus_dimension = None  # The dimension currently being focused on
 
-        self.system_role = f"""You are a compassionate neuropsychologist helping {self.user_info['username']}, born {self.user_info['birthdate']}
-from {self.user_info['culture']}, who has completed a self-awareness assessment. Based on their Awareness scores and profile information
-you are tasked with analyzing and guiding the user to understand and improve their self awareness.
-
-Use the following neurolpsychological domains to guide your analysis and recommendations:
-Utilize the following neuropsychological domains to guide your analysis:
-
-Attention and Concentration: Assist the user in understanding how their ability to focus and sustain attention affects their self-awareness and daily functioning.
-Memory Functions: Help the user explore how their working memory, short-term memory, and long-term memory influence their cognitive processes and self-awareness.
-Language Processing: Guide the user in recognizing how their receptive and expressive language abilities impact their communication skills and understanding of self and others.
-Sensory-Motor Functions: Support the user in understanding how the integration of sensory input and motor output affects their physical awareness and interaction with the environment.
-Perceptual Functions: Help the user comprehend how their visual-spatial abilities and object recognition influence their perception of the world and contribute to their self-awareness.
-Executive Functions: Assist the user in understanding how their planning, decision-making, and inhibitory control affect their goal-directed behaviors and self-regulation.
-Emotional Processing: Help the user explore how they perceive, interpret, and manage their emotions, and how this impacts their self-awareness and relationships.
-Social Cognition: Guide the user in recognizing how they understand and interpret social cues and perspectives, influencing their interactions with others.
-Metacognition: Support the user in understanding their ability to reflect on their own thoughts and cognitive processes, enhancing self-awareness.
-Motivation and Reward Systems: Assist the user in understanding how their motivation and reward systems drive their behaviors and how leveraging these systems can enhance self-awareness and personal growth.
-
-Your appoach to working with the user:
-- Analyze and review the user's strengths and areas for growth based on their self-awareness profile.
-- Working with the user on specific dimensions will involve:
-    - Education around the dimensions from a neuropsychological and awe inspiring perspective of the human brain, mind, consciousness, and self-awareness.
-    - Practices and techniques that naturally lead from the education and understanding of the dimensions.
-    - Regular reviews and reflections on the user's progress and insights.
-    - Work to create epiphanies by presenting information that is designed to resonate with the user based on their existing profile and detected awareness levels.
-- Switch between the dimensions as needed to keep the user engaged and interested in their self-awareness journey.
-
-DO NOT use markup language in any of your responses, this is used on an CLI.
+        self.system_role = """
+You are a Neuropsychologist Agent dedicated to helping users measure and improve their self-awareness
+across multiple dimensions. Guide users on a personalized journey by providing insights and practical
+tools related to consciousness, perception, attention, and self-awareness, using established
+neuropsychological concepts and the latest neuroscience findings. Assist users with assessments, goal
+setting, and developing personalized roadmaps with clear milestones. Navigate them through the main
+states—Onboarding, DimensionAnalysis, Education, Practice, and Reflection—adapting conversations based
+on the specific dimension being discussed. Communicate empathetically and supportively, using clear,
+jargon-free language. Uphold confidentiality and privacy, respecting cultural sensitivities and ethical
+boundaries. Your ultimate goal is to empower users to understand and improve their awareness dimensions,
+ fostering self-efficacy and a growth mindset.
 """
+        self.assistant_role = """
+User Information
+username: {self.user_info['username']},
+birthdate: {self.user_info['birthdate']}
+culture: {self.user_info['culture']}
+"""
+
         self.state_manager = StateManager(agent=self)
 
 
@@ -89,6 +79,17 @@ DO NOT use markup language in any of your responses, this is used on an CLI.
             # if self.current_state == 'Conversation':
             #     self.receive_input(user_input)
             # if self
+
+    # Prints text to the screen using textwrap to limit to 100 characters per line
+    def write(self, text, quiet=False):
+        wrapped_text = textwrap.fill(
+            text,
+            width=100,
+            initial_indent='    ',
+            subsequent_indent='    ')
+        if not quiet:
+            print(wrapped_text)
+        return wrapped_text
 
     def read_input(self, prompt):
         # Read input from the CLI prompt and use a known library to
@@ -121,11 +122,13 @@ DO NOT use markup language in any of your responses, this is used on an CLI.
             api_key=os.getenv("OPENAI_API_KEY")
         )
         prompt_messages = []
+        prompt_messages.append({"role": "system", "content": prompt['system_role']})
+
         # System Role Override
-        if 'system_role' in prompt.keys():
-            prompt_messages.append({"role": "system", "content": prompt['system_role']})
-        else:
-            prompt_messages.append({"role": "system", "content": self.system_role})
+        # if 'system_role' in prompt.keys() and prompt['system_role'] is not None:
+        #     prompt_messages.append({"role": "system", "content": prompt['system_role']})
+        # else:
+        #     prompt_messages.append({"role": "system", "content": self.system_role})
         # Assistant Role
         if 'assistant_role' in prompt.keys():
             prompt_messages.append({"role": "assistant", "content": prompt['assistant_role']})
@@ -145,8 +148,8 @@ DO NOT use markup language in any of your responses, this is used on an CLI.
 
         return result
 
-# Handles the Agent conversation within a particular state
-    def enter_conversation(self, prompt_context, assistant_role=None, agent_prompt=None, model="gpt-4o-mini", state=None):
+    # Handles the Agent conversation within a particular state
+    def enter_conversation(self, prompt_context, assistant_role=None, agent_prompt=None, model="gpt-4o-mini", state=None, system_role=None):
         #print('--------------------------------------------------------------------')
         if agent_prompt is None:
             agent_prompt = self.conversation_state['next_agent_question']
@@ -154,44 +157,35 @@ DO NOT use markup language in any of your responses, this is used on an CLI.
         if assistant_role is None:
             assistant_role = self.db.get_conversation_events(self.user_id)
 
-        wrapped_text = textwrap.fill(
-            agent_prompt,
-            width=100,
-            initial_indent='    ',
-            subsequent_indent='    ')
-        #print(f"State: {state}")
         state_obj = self.state_manager.state_class_obj[self.state_manager.state]
         # Display State and Commands
         self.state_manager.display_console_hud()
-        user_input = self.read_input(f"Agent:\n{wrapped_text}")
+        wrapped_agent_prompt = self.write(agent_prompt, quiet=True)
+        user_prompt = self.read_input(f"Agent:\n{wrapped_agent_prompt}")
         # Detect if the user has entered a command
-        if user_input in state_obj.commands.keys():
+        if user_prompt in state_obj.commands.keys():
             # Execute the command
-            state_obj.commands[user_input]['handler']()
+            state_obj.commands[user_prompt]['handler']()
             return None
         prompt = {
-            "system_role": self.system_role,
-            "user_prompt": f"{prompt_context}\n\nPlease answer this question from the user:\n{user_input}",
-            "assistant_role": assistant_role,
+            "user_prompt": f"{prompt_context}\n\nUser input:\n{user_prompt}",
+            "assistant_role": f"{self.assistant_role}\n{state_obj.assistant_role}",
+            "system_role": f"{self.system_role}\n{state_obj.system_role}",
         }
         results = self.get_response(
             prompt=prompt,
             model=model,
+            system_role=system_role
         )
         conversation = {
-            "user_input": user_input,
+            "user_input": user_prompt,
             "agent_response": results,
         }
         agent_response = json.loads(conversation['agent_response'])
         self.db.save_conversation_state(self.user_id, conversation['agent_response'])
         self.conversation_state = agent_response
-        # Print the resposne using textwrap to limit to 100 characters per line
-        wrapped_text = textwrap.fill(
-            agent_response['agent_response'],
-            width=100,
-            initial_indent='    ',
-            subsequent_indent='    ')
-        print(f"\nAgent:\n{wrapped_text}\n")
+
+        self.write(f"\nAgent:\n{agent_response['agent_response']}\n")
 
         conversation_assistant = ConversationAssistant(self)
         conversation_assistant.save_conversation(state, conversation)

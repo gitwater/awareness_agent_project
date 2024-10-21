@@ -72,11 +72,11 @@ def generate_spider_chart(data, output_file):
     return plt
 
 class DimensionAnalysisState(BaseState):
+    states = ['Analysis', 'SpiderChart']
 
-    def __init__(self, state_manager, agent):
+    def __init__(self, state, state_manager):
 
-        sub_states = ['Analysis', 'SpiderChart']
-        super().__init__(state_manager, agent, sub_states)
+        super().__init__(state, state_manager)
 
         self.add_command('show spider chart', self.display_spider_chart, description='Display the Spider Chart')
         self.add_command('show analysis', self.display_dimension_analysis, description='Display the Dimensional Analysis')
